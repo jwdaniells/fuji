@@ -93,6 +93,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
     <span class="sort-label">Sort:</span>
     <button class="pill active" data-sort="az">A → Z</button>
     <button class="pill" data-sort="za">Z → A</button>
+    <button class="pill" data-sort="newest">Newest first</button>
     <button class="pill" data-sort="unimported">Not imported first</button>
     <button class="pill" data-sort="imported">Imported first</button>
   </div>
@@ -295,6 +296,7 @@ function renderList() {
   if (currentFilter==='ai')           list = list.filter(r=> r.tags && r.tags.includes('AI'));
   if (currentSort==='az') list.sort((a,b)=>a.name.localeCompare(b.name));
   if (currentSort==='za') list.sort((a,b)=>b.name.localeCompare(a.name));
+  if (currentSort==='newest') list.sort((a,b)=>(b.date_added||'').localeCompare(a.date_added||'')||a.name.localeCompare(b.name));
   if (currentSort==='unimported') list.sort((a,b)=>a.imported-b.imported||a.name.localeCompare(b.name));
   if (currentSort==='imported')   list.sort((a,b)=>b.imported-a.imported||a.name.localeCompare(b.name));
   document.getElementById('count').textContent = `${list.length} recipe${list.length!==1?'s':''}`;
