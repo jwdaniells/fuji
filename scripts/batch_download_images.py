@@ -20,7 +20,6 @@ def api_put(path, msg, b64, sha=None):
         return json.loads(r.read())
 
 def fetch_page_curl(url):
-    """Use curl to fetch page - better Cloudflare handling."""
     result = subprocess.run([
         "curl", "-sL", "--max-time", "20",
         "-A", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -57,7 +56,6 @@ def get_og_image(source_url):
     return None
 
 def download_image_curl(img_url, referer):
-    """Download image with curl."""
     result = subprocess.run([
         "curl", "-sL", "--max-time", "30",
         "-A", "Mozilla/5.0",
@@ -77,26 +75,39 @@ print("Loading data.json...")
 d = api_get("/recipes/data.json")
 data = json.loads(base64.b64decode(d["content"].replace("\n", "")))
 
-missing = [(r["id"], r["name"], r.get("source_url", ""))
-           for r in data["recipes"]
-           if not r.get("image") and r.get("source_url")]
+# Process recipes with no image OR an external URL image (starts with http)
+to_process = []
+for r in data["recipes"]:
+    img = r.get("image", "")
+    if not img and r.get("source_url"):
+        to_process.append((r["id"], r["name"], r.get("source_url", ""), None))
+    elif img and img.startswith("http") and r.get("source_url"):
+        # Has external URL — download it directly rather than scraping source page
+        to_process.append((r["id"], r["name"], r.get("source_url", ""), img))
 
-print(f"Processing {len(missing)} recipes...")
+print(f"Processing {len(to_process)} recipes (missing or external-URL images)...")
 success = []
 no_img = []
 
-for i, (rid, name, src_url) in enumerate(missing):
-    print(f"[{i+1}/{len(missing)}] {name}")
+for i, (rid, name, src_url, direct_url) in enumerate(to_process):
+    print(f"[{i+1}/{len(to_process)}] {name}")
 
-    img_url = get_og_image(src_url)
-    if not img_url:
-        print(f"  No image URL found")
-        no_img.append(name)
-        time.sleep(0.5)
-        continue
+    if direct_url:
+        # Use the stored external URL directly
+        img_url = direct_url
+        referer = src_url
+        print(f"  Direct URL: {img_url[:80]}")
+    else:
+        # Scrape source page for og:image
+        img_url = get_og_image(src_url)
+        if not img_url:
+            print(f"  No image URL found")
+            no_img.append(name)
+            time.sleep(0.5)
+            continue
+        referer = "https://fujixweekly.com/" if "fujixweekly" in src_url else src_url
+        print(f"  Scraped: {img_url[:80]}")
 
-    print(f"  -> {img_url[:80]}")
-    referer = "https://fujixweekly.com/" if "fujixweekly" in src_url else src_url
     img_data = download_image_curl(img_url, referer)
     if not img_data:
         print(f"  Download failed")
