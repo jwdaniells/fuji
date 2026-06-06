@@ -33,9 +33,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
 .badge-pending{background:#f1f1f1;color:#8e8e93}
 .badge-card{background:#dbeafe;color:#1e40af}
 .badge-image{background:#fef3c7;color:#92400e}
-.render-btn{flex-shrink:0;background:#1c1c1e;color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
-.render-btn:active{opacity:0.7}
-.render-btn.loading{opacity:0.5;pointer-events:none}
 .recipe-btns{display:flex;gap:5px;flex-shrink:0}
 .icon-btn{width:36px;height:36px;border-radius:8px;border:none;background:#f2f2f7;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
 .icon-btn:active{background:#e5e5ea}
@@ -65,6 +62,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
 .settings-input{width:100%;border:1px solid #e5e5ea;border-radius:10px;padding:11px 12px;font-size:14px;outline:none;font-family:monospace;background:#f9f9f9}
 .settings-input:focus{border-color:#1c1c1e}
 .settings-note{font-size:12px;color:#8e8e93;margin-top:6px;line-height:1.5}
+/* Source modal */
+.source-modal-sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:600px;display:flex;flex-direction:column;height:88vh}
+.source-iframe{flex:1;border:none;width:100%;background:#f9f9f9}
+.source-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:16px;padding:24px;text-align:center}
+.source-fallback p{color:#636366;font-size:14px;line-height:1.6}
+.source-fallback a{color:#007aff;font-size:15px;font-weight:600;text-decoration:none}
 /* Toast */
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1c1c1e;color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;font-weight:600;z-index:300;opacity:0;transition:opacity 0.2s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
@@ -105,7 +108,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
 <div class="count-bar" id="count">Loading…</div>
 <div class="list" id="list"></div>
 
-<!-- Card modal -->
+<!-- Card / image modal -->
 <div class="modal-overlay" id="card-modal">
   <div class="modal-sheet">
     <div class="modal-header">
@@ -119,6 +122,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal()">Close</button>
       <button class="btn btn-success" id="imported-btn" onclick="markImported()">✓ Imported</button>
+    </div>
+  </div>
+</div>
+
+<!-- Source URL modal -->
+<div class="modal-overlay" id="source-modal">
+  <div class="source-modal-sheet">
+    <div class="modal-header">
+      <span class="modal-title" id="source-modal-title">Recipe Source</span>
+      <button class="modal-close" onclick="closeSourceModal()">✕</button>
+    </div>
+    <div id="source-modal-body" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+      <!-- populated dynamically -->
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeSourceModal()">Close</button>
+      <button class="btn btn-primary" id="source-open-btn" onclick="openSourceExternal()">Open in Browser ↗</button>
     </div>
   </div>
 </div>
@@ -170,14 +190,18 @@ const WB_MAP = {
 };
 
 let allRecipes = [], currentSort = 'az', currentFilter = 'all';
+let currentSourceUrl = null;
 
 function recipeActions(r) {
-  const safe = r.name.replace(/'/g, "\'");
+  const safe = r.name.replace(/'/g, "\\'");
   const imgBtn = r.image
     ? `<button class="icon-btn" title="View sample image" onclick="showImage('${safe}','${r.image}')">📷</button>`
     : `<button class="icon-btn off" title="No image yet">📷</button>`;
   const cardBtn = `<button class="icon-btn" title="Render import card" onclick="renderCard(this,'${safe}')">🎴</button>`;
-  return `<div class="recipe-btns">${imgBtn}${cardBtn}</div>`;
+  const srcBtn = r.source_url
+    ? `<button class="icon-btn" title="View recipe source" onclick="openSource('${safe}','${r.source_url.replace(/'/g,"\\'")}')">🔗</button>`
+    : `<button class="icon-btn off" title="No source link">🔗</button>`;
+  return `<div class="recipe-btns">${imgBtn}${cardBtn}${srcBtn}</div>`;
 }
 
 let modalMode = 'card';
@@ -199,6 +223,35 @@ function toast(msg, duration=2500) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ── Source URL modal ──────────────────────────────────────────────────────────
+function openSource(name, url) {
+  currentSourceUrl = url;
+  document.getElementById('source-modal-title').textContent = name;
+
+  // Try iframe first; many sites block embedding, so we show a fallback too
+  const body = document.getElementById('source-modal-body');
+  body.innerHTML = `
+    <iframe class="source-iframe" id="source-iframe" src="${url}" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
+    <div style="padding:8px 16px 0;font-size:11px;color:#8e8e93;text-align:center;flex-shrink:0">
+      If the page doesn't load, tap <strong>Open in Browser</strong> below.
+    </div>`;
+
+  document.getElementById('source-modal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSourceModal() {
+  // Clear iframe to stop any loading
+  document.getElementById('source-modal-body').innerHTML = '';
+  document.getElementById('source-modal').classList.remove('show');
+  document.body.style.overflow = '';
+  currentSourceUrl = null;
+}
+
+function openSourceExternal() {
+  if (currentSourceUrl) window.open(currentSourceUrl, '_blank', 'noopener');
 }
 
 // ── Data ──────────────────────────────────────────────────────────────────────
@@ -301,7 +354,6 @@ function drawCard(name, lines) {
   ctx.fillStyle='#000';
   const FACE = '-apple-system,"Helvetica Neue",sans-serif';
   const maxW = W - M*2;
-  // auto-fit a text string to maxW, starting from size, min 24
   function fitFont(text, startSize, bold) {
     for (let sz = startSize; sz >= 24; sz -= 2) {
       ctx.font = `${bold?'bold ':''} ${sz}px ${FACE}`;
@@ -337,6 +389,7 @@ async function renderCard(btn, name) {
     document.getElementById('modal-img').src = dataUrl;
     const recipe = allRecipes.find(r=>r.name===name);
     const impBtn = document.getElementById('imported-btn');
+    impBtn.style.display = '';
     if (recipe && recipe.imported) {
       impBtn.textContent = '✓ Already imported';
       impBtn.className = 'btn btn-success already';
@@ -369,7 +422,6 @@ async function markImported() {
   const btn = document.getElementById('imported-btn');
   btn.textContent = 'Saving…'; btn.style.opacity = '0.6'; btn.onclick = null;
   try {
-    // Get current data.json SHA + content
     const meta = await fetch(API_DATA, {
       headers:{'Authorization':`token ${token}`}
     }).then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); });
@@ -388,7 +440,6 @@ async function markImported() {
         sha: meta.sha
       })
     }).then(r=>{ if(!r.ok) throw new Error(r.status); });
-    // Update local state
     allRecipes[idx].imported = true;
     updateStats();
     renderList();
@@ -425,6 +476,9 @@ function saveToken() {
 
 document.getElementById('card-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('card-modal')) closeModal();
+});
+document.getElementById('source-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('source-modal')) closeSourceModal();
 });
 document.getElementById('settings-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('settings-modal')) closeSettings();
