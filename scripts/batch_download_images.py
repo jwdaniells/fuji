@@ -32,33 +32,31 @@ def get_og_image(source_url):
     except Exception as e:
         print(f"  Page fetch error: {e}")
         return None
-    
-    # og:image meta tag (various attribute orderings)
-    for pattern in [
-        r'<meta\s+property=["\'"]og:image["\'"]\s+content=["\'"]([^"\'">]+)["'"]\s*/?\'>',
-        r'<meta\s+content=["\'"]([^"\'">]+)["\'"]\s+property=["\'"]og:image["'"]\s*/?\'>',
-    ]:
-        m = re.search(pattern, html)
-        if m:
-            url = m.group(1)
-            if "270%2C270" not in url and "cropped" not in url and "app-store" not in url:
-                return url
-    
-    # Fallback: first wp-content image in body
+
+    # og:image meta tag
+    m = re.search(r'property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']', html)
+    if not m:
+        m = re.search(r'content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']', html)
+    if m:
+        url = m.group(1)
+        if "270%2C270" not in url and "cropped" not in url and "app-store" not in url:
+            return url
+
+    # Fallback: first large wp-content image
     skip = ["cropped", "logo", "icon", "270x270", "app-store", "img_5106", "android", "apple-app"]
-    for img in re.findall(r'https://[^"\s]+/wp-content/uploads/\d{4}/\d{2}/[^"\s]+\.jpg', html):
+    for img in re.findall(r'https://[^\s"]+/wp-content/uploads/\d{4}/\d{2}/[^\s"]+\.jpg', html):
         if not any(s in img for s in skip):
             return img
-    
+
     # film.recipes
-    for img in re.findall(r'https://film\.recipes/wp-content/uploads/[^"\s]+\.jpg', html):
+    for img in re.findall(r'https://film\.recipes/wp-content/uploads/[^\s"]+\.jpg', html):
         if not any(s in img for s in skip):
             return img
-    
+
     # captnlook wixstatic
-    for img in re.findall(r'https://static\.wixstatic\.com/media/[^"\s]+\.jpg', html):
+    for img in re.findall(r'https://static\.wixstatic\.com/media/[^\s"]+\.jpg', html):
         return img
-    
+
     return None
 
 def download_image(img_url, referer):
@@ -88,23 +86,23 @@ no_img = []
 
 for i, (rid, name, src_url) in enumerate(missing):
     print(f"[{i+1}/{len(missing)}] {name}")
-    
+
     img_url = get_og_image(src_url)
     if not img_url:
         print(f"  No image URL found")
         no_img.append(name)
         time.sleep(0.5)
         continue
-    
-    print(f"  → {img_url[:80]}")
-    referer = "https://fujixweekly.com/" if "fujixweekly" in src_url or "fujixweekly" in img_url else src_url
+
+    print(f"  -> {img_url[:80]}")
+    referer = "https://fujixweekly.com/" if "fujixweekly" in src_url else src_url
     img_data = download_image(img_url, referer)
     if not img_data:
         print(f"  Download failed")
         no_img.append(name)
         time.sleep(0.5)
         continue
-    
+
     img_path = f"/images/{rid}.jpg"
     img_b64 = base64.b64encode(img_data).decode()
     try:
@@ -119,12 +117,12 @@ for i, (rid, name, src_url) in enumerate(missing):
         no_img.append(name)
         time.sleep(1)
         continue
-    
+
     for recipe in data["recipes"]:
         if recipe["id"] == rid:
             recipe["image"] = f"{rid}.jpg"
             break
-    
+
     success.append(name)
     time.sleep(1.5)
 
