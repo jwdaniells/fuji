@@ -1571,11 +1571,25 @@
     },
     {
       "id": "ob-astia",
-      "name": "OB - Astia",
-      "settings": null,
+      "name": "OB - Vibrant Astia Soft",
+      "settings": {
+        "film_simulation": "Astia/Soft",
+        "dynamic_range": "DR400",
+        "grain_effect": "Strong, Large",
+        "color_chrome_effect": "Strong",
+        "color_chrome_fx_blue": "Weak",
+        "white_balance": "Auto, +2 Red & -2 Blue",
+        "highlight": -2,
+        "shadow": 1,
+        "color": 1,
+        "sharpness": -2,
+        "high_iso_nr": -4,
+        "clarity": -4
+      },
       "card_rendered": false,
       "imported": false,
-      "image": "ob-astia.jpg"
+      "image": "https://images.squarespace-cdn.com/content/v1/6640aa394f81737a175b1d48/ae23a011-a699-48ed-80f6-e5cac40b0581/DSCF8509.JPG",
+      "source_url": "https://www.osan-bilgi.com/vibrant-astia-soft"
     },
     {
       "id": "ob-classic-chrome",
@@ -1587,19 +1601,47 @@
     },
     {
       "id": "ob-cuban-ace",
-      "name": "OB - Cuban Ace",
-      "settings": null,
+      "name": "OB - CubanAce",
+      "settings": {
+        "film_simulation": "Reala Ace",
+        "dynamic_range": "DR400",
+        "grain_effect": "Strong, Large",
+        "color_chrome_effect": "Strong",
+        "color_chrome_fx_blue": "Strong",
+        "white_balance": "Auto, +4 Red & -5 Blue",
+        "highlight": -2,
+        "shadow": 2,
+        "color": 1,
+        "sharpness": 0,
+        "high_iso_nr": -4,
+        "clarity": -4
+      },
       "card_rendered": false,
       "imported": false,
-      "image": "ob-cuban-ace.jpg"
+      "image": "https://images.squarespace-cdn.com/content/v1/6640aa394f81737a175b1d48/b789167d-0752-44f4-8fc3-9a20126e72de/IMG_5795.JPG",
+      "source_url": "https://www.osan-bilgi.com/cubanace"
     },
     {
       "id": "ob-cuban-neg",
-      "name": "OB - Cuban Neg",
-      "settings": null,
+      "name": "OB - Classic Cuban Negative",
+      "settings": {
+        "film_simulation": "Classic Negative",
+        "dynamic_range": "DR400",
+        "grain_effect": "Strong, Large",
+        "color_chrome_effect": "Strong",
+        "color_chrome_fx_blue": "Strong",
+        "white_balance": "Auto, +4 Red & -5 Blue",
+        "highlight": -2,
+        "shadow": 1,
+        "color": 4,
+        "sharpness": 0,
+        "high_iso_nr": -4,
+        "clarity": -4
+      },
       "card_rendered": false,
       "imported": false,
-      "image": "ob-cuban-neg.jpg"
+      "image": "https://images.squarespace-cdn.com/content/v1/6640aa394f81737a175b1d48/ff987654-c059-4ea3-a867-bacb80eeca8e/IMG_5799.JPG",
+      "source_url": "https://www.osan-bilgi.com/classic-cuban-negative"
     },
     {
       "id": "ob-cuban-street-neg",
@@ -1620,10 +1662,24 @@
     {
       "id": "ob-summer-chrome",
       "name": "OB Summer Chrome",
-      "settings": null,
+      "settings": {
+        "film_simulation": "Classic Chrome",
+        "dynamic_range": "DR400",
+        "grain_effect": "Strong, Large",
+        "color_chrome_effect": "Strong",
+        "color_chrome_fx_blue": "Strong",
+        "white_balance": "Auto, +5 Red & -6 Blue",
+        "highlight": -2,
+        "shadow": -2,
+        "color": 4,
+        "sharpness": 0,
+        "high_iso_nr": -4,
+        "clarity": -4
+      },
       "card_rendered": false,
       "imported": false,
-      "image": null
+      "image": "https://images.squarespace-cdn.com/content/v1/6640aa394f81737a175b1d48/bc55ffda-d6a0-49a0-88d4-a8e0a0263e56/IMG_5860.JPG",
+      "source_url": "https://www.osan-bilgi.com/summer-chrome"
     },
     {
       "id": "old-ektachrome",
@@ -2015,8 +2071,30 @@
       "imported": false,
       "image": "https://image.jimcdn.com/app/cms/image/transf/dimension=341x2048:format=jpg/path/s6e448093c640ff4c/image/i45ec3cbc022b0fd0/version/1771485966/image.jpg",
       "source_url": "https://www.hemelsteen.nl/fuji-film-recipes-x-trans-v-marcel-fraij/"
+    },
+    {
+      "id": "ob-alpine-neg",
+      "name": "OB - Alpine Negative",
+      "source_url": "https://www.osan-bilgi.com/alpine-negative",
+      "image": "https://images.squarespace-cdn.com/content/v1/6640aa394f81737a175b1d48/93a87ced-f4ef-4bf4-992e-cdbc693013ca/DSCF0574.JPG",
+      "card_rendered": false,
+      "imported": false,
+      "settings": {
+        "film_simulation": "Classic Negative",
+        "dynamic_range": "DR400",
+        "grain_effect": "Off",
+        "color_chrome_effect": "Off",
+        "color_chrome_fx_blue": "Strong",
+        "white_balance": "Auto, +2 Red & -4 Blue",
+        "highlight": -2,
+        "shadow": 1,
+        "color": 4,
+        "sharpness": 0,
+        "high_iso_nr": -4,
+        "clarity": -3
+      }
     }
   ],
   "last_updated": "2026-06-06",
-  "total": 228
+  "total": 229
 }
