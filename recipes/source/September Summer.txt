@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ConversionProfile application="XRFC" version="1.12.0.0">
+    <PropertyGroup device="X100VI" version="X100VI_0100" label="September Summer">
+        <SerialNumber>5935373131312401110DA31011011D</SerialNumber>
+        <TetherRAWConditonCode>X100VI_0100</TetherRAWConditonCode>
+        <Editable>TRUE</Editable>
+        <SourceFileName/>
+        <Fileerror>NONE</Fileerror>
+        <RotationAngle>0</RotationAngle>
+        <StructVer>65536</StructVer>
+        <IOPCode>FF159504</IOPCode>
+        <ShootingCondition>OFF</ShootingCondition>
+        <FileType>JPG</FileType>
+        <ImageSize>L3x2</ImageSize>
+        <ImageQuality>Fine</ImageQuality>
+        <ExposureBias>0</ExposureBias>
+        <DynamicRange>400</DynamicRange>
+        <WideDRange>0</WideDRange>
+        <FilmSimulation>ClassicNEGA</FilmSimulation>
+        <BlackImageTone>0</BlackImageTone>
+        <MonochromaticColor_RG>0</MonochromaticColor_RG>
+        <GrainEffect>WEAK</GrainEffect>
+        <GrainEffectSize>SMALL</GrainEffectSize>
+        <ChromeEffect>OFF</ChromeEffect>
+        <ColorChromeBlue>WEAK</ColorChromeBlue>
+        <SmoothSkinEffect>OFF</SmoothSkinEffect>
+        <WBShootCond>OFF</WBShootCond>
+        <WhiteBalance>Temperature</WhiteBalance>
+        <WBShiftR>3</WBShiftR>
+        <WBShiftB>-7</WBShiftB>
+        <WBColorTemp>5500K</WBColorTemp>
+        <HighlightTone>-1</HighlightTone>
+        <ShadowTone>-1</ShadowTone>
+        <Color>1</Color>
+        <Sharpness>0</Sharpness>
+        <NoisReduction>-4</NoisReduction>
+        <Clarity>-4</Clarity>
+        <LensModulationOpt>ON</LensModulationOpt>
+        <ColorSpace>sRGB</ColorSpace>
+        <HDR/>
+        <DigitalTeleConv>OFF</DigitalTeleConv>
+    </PropertyGroup>
+</ConversionProfile>

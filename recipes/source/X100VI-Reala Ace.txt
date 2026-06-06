@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ConversionProfile application="XRFC" version="1.12.0.0">
+    <PropertyGroup device="X100VI" version="X100VI_0100" label="X100VI-Reala Ace">
+        <SerialNumber>5935373131312401110DA31011011D</SerialNumber>
+        <TetherRAWConditonCode>X100VI_0100</TetherRAWConditonCode>
+        <Editable>TRUE</Editable>
+        <SourceFileName/>
+        <Fileerror>NONE</Fileerror>
+        <RotationAngle>0</RotationAngle>
+        <StructVer>65536</StructVer>
+        <IOPCode>FF179503</IOPCode>
+        <ShootingCondition>OFF</ShootingCondition>
+        <FileType>JPG</FileType>
+        <ImageSize>S3x2</ImageSize>
+        <ImageQuality>Fine</ImageQuality>
+        <ExposureBias>0</ExposureBias>
+        <DynamicRange>100</DynamicRange>
+        <WideDRange>0</WideDRange>
+        <FilmSimulation>Reala</FilmSimulation>
+        <BlackImageTone>0</BlackImageTone>
+        <MonochromaticColor_RG>0</MonochromaticColor_RG>
+        <GrainEffect>WEAK</GrainEffect>
+        <GrainEffectSize>SMALL</GrainEffectSize>
+        <ChromeEffect>WEAK</ChromeEffect>
+        <ColorChromeBlue>WEAK</ColorChromeBlue>
+        <SmoothSkinEffect>OFF</SmoothSkinEffect>
+        <WBShootCond>ON</WBShootCond>
+        <WhiteBalance>INVALID</WhiteBalance>
+        <WBShiftR>4</WBShiftR>
+        <WBShiftB>-5</WBShiftB>
+        <WBColorTemp>0K</WBColorTemp>
+        <HighlightTone>-1</HighlightTone>
+        <ShadowTone>-1</ShadowTone>
+        <Color>-1</Color>
+        <Sharpness>0</Sharpness>
+        <NoisReduction>-4</NoisReduction>
+        <Clarity>0</Clarity>
+        <LensModulationOpt>ON</LensModulationOpt>
+        <ColorSpace>sRGB</ColorSpace>
+        <HDR/>
+        <DigitalTeleConv>ON</DigitalTeleConv>
+    </PropertyGroup>
+</ConversionProfile>
