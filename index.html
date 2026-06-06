@@ -17,13 +17,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
 .search-bar input::placeholder{color:#636366}
 .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#636366;font-size:14px}
 /* Controls */
-.controls{display:flex;gap:8px;padding:10px 16px;background:#f2f2f7;border-bottom:1px solid #e5e5ea;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.controls::-webkit-scrollbar{display:none}
+#controls{background:#f2f2f7;border-bottom:1px solid #e5e5ea;padding:8px 16px}
+.control-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:4px 0}
 .pill{white-space:nowrap;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:#e5e5ea;color:#1c1c1e;transition:all 0.15s}
 .pill.active{background:#1c1c1e;color:#fff}
 /* List */
 .list{padding:0 16px 20px}
-.section-label{font-size:12px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:0.4px;padding:16px 0 6px;margin:0 -16px;padding-left:16px;background:#f2f2f7;position:sticky;top:114px;z-index:10}
+.section-label{font-size:12px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:0.4px;padding:16px 0 6px;margin:0 -16px;padding-left:16px;background:#f2f2f7;position:sticky;top:160px;z-index:10}
 .recipe-card{background:#fff;border-radius:12px;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
 .recipe-main{display:flex;align-items:center;padding:12px 14px;gap:10px}
 .recipe-info{flex:1;min-width:0}
@@ -73,18 +73,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
   </div>
 </div>
 
-<div class="controls" id="controls">
-  <span class="sort-label">Sort:</span>
-  <button class="pill active" data-sort="az">A → Z</button>
-  <button class="pill" data-sort="za">Z → A</button>
-  <button class="pill" data-sort="unimported">Not imported first</button>
-  <button class="pill" data-sort="imported">Imported first</button>
-  <span class="sort-label" style="margin-left:6px">Filter:</span>
-  <button class="pill active" data-filter="all">All</button>
-  <button class="pill" data-filter="not-imported">Not imported</button>
-  <button class="pill" data-filter="imported">Imported</button>
-  <button class="pill" data-filter="no-card">Needs card</button>
-  <button class="pill" data-filter="has-image">Has image</button>
+<div id="controls">
+  <div class="control-row">
+    <span class="sort-label">Sort:</span>
+    <button class="pill active" data-sort="az">A → Z</button>
+    <button class="pill" data-sort="za">Z → A</button>
+    <button class="pill" data-sort="unimported">Not imported first</button>
+    <button class="pill" data-sort="imported">Imported first</button>
+  </div>
+  <div class="control-row">
+    <span class="sort-label">Filter:</span>
+    <button class="pill active" data-filter="all">All</button>
+    <button class="pill" data-filter="not-imported">Not imported</button>
+    <button class="pill" data-filter="imported">Imported</button>
+    <button class="pill" data-filter="no-card">Needs card</button>
+    <button class="pill" data-filter="has-image">Has image</button>
+  </div>
 </div>
 
 <div id="app">
