@@ -248,7 +248,8 @@
       "settings": null,
       "card_rendered": false,
       "imported": false,
-      "image": "captnlook-50s-diner.jpg"
+      "image": "captnlook-50s-diner.jpg",
+      "source_url": "https://www.captnlook.com/50diner"
     },
     {
       "id": "captnlook-cheers",
@@ -256,7 +257,8 @@
       "settings": null,
       "card_rendered": false,
       "imported": false,
-      "image": "captnlook-cheers.jpg"
+      "image": "captnlook-cheers.jpg",
+      "source_url": "https://www.captnlook.com/cheers"
     },
     {
       "id": "captnlook-creamy-color",
@@ -265,7 +267,7 @@
       "card_rendered": false,
       "imported": false,
       "image": "captnlook-creamy-color.jpg",
-      "source_url": "https://fujixweekly.com/2021/02/23/fujifilm-x-trans-iv-film-simulation-recipe-creamy-color/"
+      "source_url": "https://www.captnlook.com/creamy-color-1"
     },
     {
       "id": "captnlook-indian-summer",
@@ -273,7 +275,8 @@
       "settings": null,
       "card_rendered": false,
       "imported": false,
-      "image": "captnlook-indian-summer.jpg"
+      "image": "captnlook-indian-summer.jpg",
+      "source_url": "https://www.captnlook.com/indian-summer"
     },
     {
       "id": "captnlook-nature-neon",
@@ -282,7 +285,7 @@
       "card_rendered": false,
       "imported": false,
       "image": "captnlook-nature-neon.jpg",
-      "source_url": "https://fujixweekly.com/2020/09/30/fujifilm-x100v-film-simulation-recipe-nature-neon/"
+      "source_url": "https://www.captnlook.com/nature-neon"
     },
     {
       "id": "captnlook-street-romance",
@@ -290,7 +293,8 @@
       "settings": null,
       "card_rendered": false,
       "imported": false,
-      "image": "captnlook-street-romance.jpg"
+      "image": "captnlook-street-romance.jpg",
+      "source_url": "https://www.captnlook.com/street-romance"
     },
     {
       "id": "chrome-city-universal-negative",
