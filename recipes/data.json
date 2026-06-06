@@ -1440,8 +1440,8 @@
       "settings": null,
       "card_rendered": false,
       "imported": false,
-      "image": "mf-fujica-half.jpg",
-      "source_url": "https://fujixweekly.com/2024/05/16/fujifilm-x-t50-film-dial-settings-14-new-film-simulation-recipes-yes-14/"
+      "image": "https://image.jimcdn.com/app/cms/image/transf/dimension=1920x400:format=jpg/path/s6e448093c640ff4c/image/i4499845328500e04/version/1778868885/image.jpg",
+      "source_url": "https://www.hemelsteen.nl/photography/"
     },
     {
       "id": "mf-new-portra",
@@ -1476,8 +1476,8 @@
       "settings": null,
       "card_rendered": false,
       "imported": false,
-      "image": "mf-urban-vibe.jpg",
-      "source_url": "https://fujixweekly.com/2024/05/16/fujifilm-x-t50-film-dial-settings-14-new-film-simulation-recipes-yes-14/"
+      "image": "https://image.jimcdn.com/app/cms/image/transf/dimension=1920x400:format=png/path/s6e448093c640ff4c/image/i9e15abfbe9c55f6d/version/1778956486/image.png",
+      "source_url": "https://www.hemelsteen.nl/photography/"
     },
     {
       "id": "monochrome-negative",
@@ -1961,8 +1961,62 @@
       "imported": false,
       "image": "xpro-62.jpg",
       "source_url": "https://fujixweekly.com/2021/05/03/fujifilm-x100v-x-trans-iv-film-simulation-recipe-xpro-62/"
+    },
+    {
+      "id": "mf-proneg-plus-m2",
+      "name": "MF - ProNeg+ (m2)",
+      "settings": null,
+      "card_rendered": false,
+      "imported": false,
+      "image": "https://image.jimcdn.com/app/cms/image/transf/dimension=1920x400:format=jpg/path/s6e448093c640ff4c/image/id628e3d08c3c0279/version/1767512487/image.jpg",
+      "source_url": "https://www.hemelsteen.nl/photography/"
+    },
+    {
+      "id": "mf-fujisupra-5750",
+      "name": "MF - FujiSupra 5750",
+      "settings": null,
+      "card_rendered": false,
+      "imported": false,
+      "image": "https://image.jimcdn.com/app/cms/image/transf/dimension=1920x400:format=jpg/path/s6e448093c640ff4c/image/ie37aa2162fb44ff1/version/1778853376/image.jpg",
+      "source_url": "https://www.hemelsteen.nl/photography/"
+    },
+    {
+      "id": "mf-paleopale",
+      "name": "MF - PaleOpale",
+      "settings": null,
+      "card_rendered": false,
+      "imported": false,
+      "image": "https://image.jimcdn.com/app/cms/image/transf/dimension=1920x400:format=jpg/path/s6e448093c640ff4c/image/ie6ec0b2ba6114150/version/1772640571/image.jpg",
+      "source_url": "https://www.hemelsteen.nl/photography/"
+    },
+    {
+      "id": "mf-acrosdark-m2",
+      "name": "MF - AcrosDark m2",
+      "settings": null,
+      "card_rendered": false,
+      "imported": false,
+      "image": "https://image.jimcdn.com/app/cms/image/transf/dimension=1920x400:format=jpg/path/s6e448093c640ff4c/image/i5af220212a00bf5c/version/1778868220/image.jpg",
+      "source_url": "https://www.hemelsteen.nl/photography/"
+    },
+    {
+      "id": "mf-dutchvelvia",
+      "name": "MF - DutchVelvia",
+      "settings": null,
+      "card_rendered": false,
+      "imported": false,
+      "image": "https://image.jimcdn.com/app/cms/image/transf/dimension=1920x400:format=jpg/path/s6e448093c640ff4c/image/i2fbe29f78ef4ebf4/version/1772640596/image.jpg",
+      "source_url": "https://www.hemelsteen.nl/photography/"
+    },
+    {
+      "id": "mf-amberace",
+      "name": "MF - AmberAce",
+      "settings": null,
+      "card_rendered": false,
+      "imported": false,
+      "image": "https://image.jimcdn.com/app/cms/image/transf/dimension=341x2048:format=jpg/path/s6e448093c640ff4c/image/i45ec3cbc022b0fd0/version/1771485966/image.jpg",
+      "source_url": "https://www.hemelsteen.nl/fuji-film-recipes-x-trans-v-marcel-fraij/"
     }
   ],
   "last_updated": "2026-06-06",
-  "total": 222
+  "total": 228
 }
