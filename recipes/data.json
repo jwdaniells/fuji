@@ -90,6 +90,29 @@
       "tags": []
     },
     {
+      "id": "agfachrome-cool-film",
+      "name": "Agfachrome Cool Film",
+      "settings": {
+        "film_simulation": "Classic Chrome",
+        "dynamic_range": "DR400",
+        "grain_effect": "Strong, Small",
+        "color_chrome_effect": "Off",
+        "color_chrome_fx_blue": "Off",
+        "white_balance": "Auto, -3 Red & +1 Blue",
+        "highlight": 1,
+        "shadow": -1,
+        "color": -2,
+        "sharpness": 0,
+        "high_iso_nr": -4,
+        "clarity": 0
+      },
+      "card_rendered": false,
+      "imported": false,
+      "image": "agfachrome-cool-film.jpg",
+      "source_url": null,
+      "tags": []
+    },
+    {
       "id": "agfachrome-rs-100",
       "name": "AgfaChrome RS 100",
       "settings": null,
@@ -2362,5 +2385,5 @@
     }
   ],
   "last_updated": "2026-06-07",
-  "total": 230
+  "total": 231
 }
