@@ -303,9 +303,7 @@ function renderList() {
         <div class="recipe-info">
           <div class="recipe-name">${r.name}</div>
           <div class="recipe-badges">
-            ${r.imported     ? '<span class="badge badge-imported">✓ Imported</span>' : '<span class="badge badge-pending">Not imported</span>'}
-            ${r.card_rendered? '<span class="badge badge-card">Card ready</span>'    : ''}
-            ${r.image        ? '<span class="badge badge-image">📷 Image</span>'     : ''}
+            ${r.imported ? '<span class="badge badge-imported">✓ Imported</span>' : '<span class="badge badge-pending">Not imported</span>'}
             ${r.tags && r.tags.includes('AI') ? '<span class="badge badge-ai">🤖 AI</span>' : ''}
           </div>
         </div>
