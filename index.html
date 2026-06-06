@@ -2,86 +2,272 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Fuji Recipes</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f5f5;color:#1a1a1a}
-  header{background:#1a1a1a;color:#fff;padding:20px 24px;display:flex;align-items:center;gap:16px}
-  header h1{font-size:20px;font-weight:700;letter-spacing:0.5px}
-  .stats{font-size:13px;color:#aaa;margin-left:auto;display:flex;gap:16px}
-  .filters{padding:16px 24px;background:#fff;border-bottom:1px solid #e5e5e5;display:flex;gap:10px;flex-wrap:wrap}
-  .filters input{padding:7px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;flex:1;min-width:200px}
-  .filters select{padding:7px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;background:#fff}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;padding:20px 24px}
-  .card{background:#fff;border-radius:8px;padding:16px;border:1px solid #e5e5e5;cursor:pointer;transition:box-shadow 0.15s}
-  .card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.1)}
-  .card-name{font-weight:600;font-size:15px;margin-bottom:10px}
-  .badges{display:flex;gap:6px;flex-wrap:wrap}
-  .badge{font-size:11px;font-weight:600;padding:3px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:0.3px}
-  .badge-imported{background:#d1fae5;color:#065f46}
-  .badge-rendered{background:#dbeafe;color:#1e40af}
-  .badge-image{background:#fef3c7;color:#92400e}
-  .badge-pending{background:#f3f4f6;color:#6b7280}
-  .count{font-size:13px;color:#666;padding:8px 24px 0}
-  .no-results{text-align:center;padding:60px 24px;color:#999;font-size:15px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;background:#f2f2f7;color:#1c1c1e;overscroll-behavior:none}
+/* Header */
+.header{position:sticky;top:0;z-index:100;background:#1c1c1e;padding:12px 16px 8px;padding-top:calc(12px + env(safe-area-inset-top))}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.header h1{color:#fff;font-size:20px;font-weight:700;letter-spacing:-0.3px}
+.header-stats{color:#8e8e93;font-size:12px;text-align:right;line-height:1.4}
+.search-bar{position:relative}
+.search-bar input{width:100%;background:#2c2c2e;border:none;border-radius:10px;padding:9px 12px 9px 36px;color:#fff;font-size:16px;outline:none}
+.search-bar input::placeholder{color:#636366}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#636366;font-size:14px}
+/* Controls */
+.controls{display:flex;gap:8px;padding:10px 16px;background:#f2f2f7;border-bottom:1px solid #e5e5ea;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.controls::-webkit-scrollbar{display:none}
+.pill{white-space:nowrap;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:#e5e5ea;color:#1c1c1e;transition:all 0.15s}
+.pill.active{background:#1c1c1e;color:#fff}
+/* List */
+.list{padding:0 16px 20px}
+.section-label{font-size:12px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:0.4px;padding:16px 0 6px;margin:0 -16px;padding-left:16px;background:#f2f2f7;position:sticky;top:114px;z-index:10}
+.recipe-card{background:#fff;border-radius:12px;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.recipe-main{display:flex;align-items:center;padding:12px 14px;gap:10px}
+.recipe-info{flex:1;min-width:0}
+.recipe-name{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recipe-badges{display:flex;gap:5px;margin-top:4px;flex-wrap:wrap}
+.badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:0.2px;text-transform:uppercase}
+.badge-imported{background:#d1fae5;color:#065f46}
+.badge-pending{background:#f1f1f1;color:#8e8e93}
+.badge-card{background:#dbeafe;color:#1e40af}
+.badge-image{background:#fef3c7;color:#92400e}
+.render-btn{flex-shrink:0;background:#1c1c1e;color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.render-btn:active{opacity:0.7}
+.render-btn.loading{opacity:0.5;pointer-events:none}
+/* Empty state */
+.empty{text-align:center;padding:60px 20px;color:#8e8e93}
+.empty svg{margin-bottom:12px;opacity:0.4}
+/* Count bar */
+.count-bar{text-align:center;padding:8px;color:#8e8e93;font-size:12px}
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.85);flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal-card{background:#fff;border-radius:16px;overflow:hidden;width:100%;max-width:380px;max-height:85vh;display:flex;flex-direction:column}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #e5e5ea;flex-shrink:0}
+.modal-title{font-size:15px;font-weight:700}
+.modal-close{background:none;border:none;font-size:20px;color:#636366;cursor:pointer;padding:0 4px;line-height:1}
+.modal-body{overflow-y:auto;padding:16px;flex:1}
+.modal-body img{width:100%;border-radius:8px;display:block}
+.modal-hint{text-align:center;font-size:12px;color:#8e8e93;margin-top:10px;padding:0 8px}
+.modal-actions{padding:12px 16px;border-top:1px solid #e5e5ea;flex-shrink:0;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+.modal-actions button{width:100%;padding:13px;border-radius:10px;border:none;font-size:15px;font-weight:600;cursor:pointer}
+.btn-primary{background:#1c1c1e;color:#fff}
+.btn-primary:active{opacity:0.8}
+/* Sort label */
+.sort-label{font-size:13px;color:#636366;padding:0 2px;white-space:nowrap;display:flex;align-items:center}
 </style>
 </head>
 <body>
-<header>
-  <h1>📷 Fuji Recipes</h1>
-  <div class="stats">
-    <span id="stat-total">— recipes</span>
-    <span id="stat-imported">— imported</span>
-    <span id="stat-images">— with images</span>
+
+<div class="header">
+  <div class="header-top">
+    <h1>📷 Fuji Recipes</h1>
+    <div class="header-stats" id="stats">Loading…</div>
   </div>
-</header>
-<div class="filters">
-  <input type="text" id="search" placeholder="Search recipes…" oninput="render()">
-  <select id="filter" onchange="render()">
-    <option value="all">All recipes</option>
-    <option value="not-imported">Not yet imported</option>
-    <option value="imported">Imported</option>
-    <option value="no-image">No image yet</option>
-    <option value="has-image">Has image</option>
-    <option value="rendered">Card rendered</option>
-  </select>
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input type="search" id="search" placeholder="Search recipes…" autocomplete="off" autocorrect="off" spellcheck="false">
+  </div>
 </div>
-<div class="count" id="count"></div>
-<div class="grid" id="grid"></div>
+
+<div class="controls" id="controls">
+  <span class="sort-label">Sort:</span>
+  <button class="pill active" data-sort="az">A → Z</button>
+  <button class="pill" data-sort="za">Z → A</button>
+  <button class="pill" data-sort="unimported">Not imported first</button>
+  <button class="pill" data-sort="imported">Imported first</button>
+  <span class="sort-label" style="margin-left:6px">Filter:</span>
+  <button class="pill active" data-filter="all">All</button>
+  <button class="pill" data-filter="not-imported">Not imported</button>
+  <button class="pill" data-filter="imported">Imported</button>
+  <button class="pill" data-filter="no-card">Needs card</button>
+  <button class="pill" data-filter="has-image">Has image</button>
+</div>
+
+<div id="app">
+  <div class="count-bar" id="count">Loading…</div>
+  <div class="list" id="list"></div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Recipe Card</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <img id="modal-img" src="" alt="Recipe card">
+      <p class="modal-hint">Press and hold the image to save to your photos</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="closeModal()">Done</button>
+    </div>
+  </div>
+</div>
+
+<canvas id="offscreen" style="display:none"></canvas>
+
 <script>
-let recipes = [];
-fetch("recipes/data.json")
-  .then(r => r.json())
-  .then(d => {
-    recipes = d.recipes;
-    document.getElementById("stat-total").textContent = recipes.length + " recipes";
-    document.getElementById("stat-imported").textContent = recipes.filter(r=>r.imported).length + " imported";
-    document.getElementById("stat-images").textContent = recipes.filter(r=>r.image).length + " with images";
-    render();
-  });
-function render() {
-  const q = document.getElementById("search").value.toLowerCase();
-  const f = document.getElementById("filter").value;
-  let list = recipes.filter(r => r.name.toLowerCase().includes(q));
-  if (f === "not-imported") list = list.filter(r => !r.imported);
-  if (f === "imported")     list = list.filter(r =>  r.imported);
-  if (f === "no-image")     list = list.filter(r => !r.image);
-  if (f === "has-image")    list = list.filter(r =>  r.image);
-  if (f === "rendered")     list = list.filter(r =>  r.card_rendered);
-  document.getElementById("count").textContent = list.length + " recipes shown";
-  const grid = document.getElementById("grid");
-  if (!list.length) { grid.innerHTML = '<div class="no-results">No recipes match</div>'; return; }
-  grid.innerHTML = list.map(r => `
-    <div class="card">
-      <div class="card-name">${r.name}</div>
-      <div class="badges">
-        ${r.imported  ? '<span class="badge badge-imported">✓ Imported</span>' : '<span class="badge badge-pending">Not imported</span>'}
-        ${r.card_rendered ? '<span class="badge badge-rendered">Card ready</span>' : ''}
-        ${r.image ? '<span class="badge badge-image">📷 Image</span>' : ''}
-      </div>
-    </div>`).join('');
+const DATA_URL = 'https://raw.githubusercontent.com/jwdaniells/fuji/main/recipes/data.json';
+const SRC_URL  = n => `https://raw.githubusercontent.com/jwdaniells/fuji/main/recipes/source/${encodeURIComponent(n)}.txt`;
+
+const SIM_MAP = {
+  'Provia':'Provia/Standard','Velvia':'Velvia/Vivid','Astia':'Astia/Soft',
+  'Classic':'Classic Chrome','ClassicChrome':'Classic Chrome',
+  'Negative':'Classic Negative','ClassicNeg':'Classic Neg.',
+  'NegHi':'PRO Neg. Hi','NegStd':'PRO Neg. Std',
+  'ProNegHi':'PRO Neg. Hi','ProNegStd':'PRO Neg. Std',
+  'NostalgicNeg':'Nostalgic Neg.','Eterna':'Eterna/Cinema',
+  'BleachBypass':'Eterna Bleach Bypass','Acros':'Acros',
+  'Monochrome':'Monochrome','Sepia':'Sepia','RealaAce':'Reala Ace'
+};
+const WB_MAP = {
+  'Auto':'Auto','Daylight':'Daylight','Shade':'Shade',
+  'FluorescentDaylight':'Fluorescent 1','FluorescentWarm':'Fluorescent 2',
+  'FluorescentCool':'Fluorescent 3','Incandescent':'Incandescent',
+  'Underwater':'Underwater','Custom':'Custom WB'
+};
+
+function parseRecipe(xml) {
+  const p = new DOMParser().parseFromString(xml, 'text/xml');
+  const g = tag => { const el = p.querySelector(tag); return el ? el.textContent.trim() : ''; };
+  const num = (v, n=1) => { const f=parseFloat(v); if(isNaN(f)) return '0'; return (f>0?'+':'')+f.toFixed(n).replace(/\.0$/,''); };
+
+  const sim = SIM_MAP[g('FilmSimulation')] || g('FilmSimulation');
+  const dr  = `DR${g('DynamicRange')||'100'}`;
+  const gfx = g('GrainEffect'); const gfsz = g('GrainEffectSize');
+  const grain = gfx==='OFF'?'Off': (gfx[0]+gfx.slice(1).toLowerCase())+', '+(gfsz[0]+gfsz.slice(1).toLowerCase());
+  const cce = g('ChromeEffect'); const ccef = cce==='OFF'?'Off':cce[0]+cce.slice(1).toLowerCase();
+  const ccb = g('ColorChromeBlue'); const ccbf = ccb==='OFF'?'Off':ccb[0]+ccb.slice(1).toLowerCase();
+  const wb  = WB_MAP[g('WhiteBalance')] || g('WhiteBalance');
+  const r   = parseInt(g('WBShiftR')||0), b=parseInt(g('WBShiftB')||0);
+  const wbLine = (r===0&&b===0) ? wb : `${wb}, ${r>=0?'+'+r:r} Red & ${b>=0?'+'+b:b} Blue`;
+
+  return [
+    ['Film Simulation', sim],
+    ['Dynamic Range', dr],
+    ['Grain Effect', grain],
+    ['Color Chrome Effect', ccef],
+    ['Color Chrome FX Blue', ccbf],
+    ['White Balance', wbLine],
+    ['Highlight', num(g('HighlightTone'))],
+    ['Shadow', num(g('ShadowTone'))],
+    ['Color', num(g('Color'))],
+    ['Sharpness', num(g('Sharpness'))],
+    ['High ISO NR', num(g('NoisReduction'))],
+    ['Clarity', num(g('Clarity'))],
+  ];
 }
+
+function drawCard(name, lines) {
+  const DPR = window.devicePixelRatio || 2;
+  const W = 750, MARGIN = 56, LINE_H = 84;
+  const H = 160 + lines.length * LINE_H + 80;
+  const c = document.getElementById('offscreen');
+  c.width = W * DPR; c.height = H * DPR;
+  c.style.width = W+'px'; c.style.height = H+'px';
+  const ctx = c.getContext('2d');
+  ctx.scale(DPR, DPR);
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = '#000000';
+  ctx.font = `bold 52px -apple-system, "Helvetica Neue", sans-serif`;
+  ctx.fillText(name, MARGIN, 72);
+  ctx.fillRect(MARGIN, 96, W - MARGIN*2, 5);
+  ctx.font = `40px -apple-system, "Helvetica Neue", sans-serif`;
+  lines.forEach(([label, val], i) => {
+    const y = 96 + 50 + (i+1)*LINE_H - 16;
+    ctx.fillText(`${label}: ${val}`, MARGIN, y);
+    ctx.fillRect(MARGIN, y+18, W-MARGIN*2, 2);
+  });
+  return c.toDataURL('image/png');
+}
+
+let allRecipes = [], currentSort = 'az', currentFilter = 'all';
+
+fetch(DATA_URL).then(r=>r.json()).then(d => {
+  allRecipes = d.recipes;
+  const total = allRecipes.length;
+  const imp   = allRecipes.filter(r=>r.imported).length;
+  const imgs  = allRecipes.filter(r=>r.image).length;
+  document.getElementById('stats').innerHTML = `${total} recipes<br>${imp} imported · ${imgs} with images`;
+  renderList();
+});
+
+document.getElementById('search').addEventListener('input', renderList);
+
+document.getElementById('controls').addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  if (btn.dataset.sort) {
+    document.querySelectorAll('[data-sort]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentSort = btn.dataset.sort;
+  }
+  if (btn.dataset.filter) {
+    document.querySelectorAll('[data-filter]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+  }
+  renderList();
+});
+
+function renderList() {
+  const q = document.getElementById('search').value.toLowerCase();
+  let list = allRecipes.filter(r => r.name.toLowerCase().includes(q));
+  if (currentFilter==='not-imported') list = list.filter(r=>!r.imported);
+  if (currentFilter==='imported')     list = list.filter(r=> r.imported);
+  if (currentFilter==='no-card')      list = list.filter(r=>!r.card_rendered);
+  if (currentFilter==='has-image')    list = list.filter(r=> r.image);
+  if (currentSort==='az') list.sort((a,b)=>a.name.localeCompare(b.name));
+  if (currentSort==='za') list.sort((a,b)=>b.name.localeCompare(a.name));
+  if (currentSort==='unimported') list.sort((a,b)=>a.imported-b.imported||a.name.localeCompare(b.name));
+  if (currentSort==='imported')   list.sort((a,b)=>b.imported-a.imported||a.name.localeCompare(b.name));
+  document.getElementById('count').textContent = `${list.length} recipe${list.length!==1?'s':''}`;
+  document.getElementById('list').innerHTML = list.length ? list.map(r => `
+    <div class="recipe-card">
+      <div class="recipe-main">
+        <div class="recipe-info">
+          <div class="recipe-name">${r.name}</div>
+          <div class="recipe-badges">
+            ${r.imported     ? '<span class="badge badge-imported">✓ Imported</span>' : '<span class="badge badge-pending">Not imported</span>'}
+            ${r.card_rendered? '<span class="badge badge-card">Card ready</span>'     : ''}
+            ${r.image        ? '<span class="badge badge-image">📷 Image</span>'      : ''}
+          </div>
+        </div>
+        <button class="render-btn" onclick="renderCard(this,'${r.name.replace(/'/g,"\\'")}')">Render Card</button>
+      </div>
+    </div>`).join('') : '<div class="empty"><div style="font-size:40px;margin-bottom:8px">📭</div><div>No recipes match</div></div>';
+}
+
+async function renderCard(btn, name) {
+  btn.textContent = '…'; btn.classList.add('loading');
+  try {
+    const xml = await fetch(SRC_URL(name)).then(r=>{ if(!r.ok) throw new Error(r.status); return r.text(); });
+    const lines = parseRecipe(xml);
+    const dataUrl = drawCard(name, lines);
+    document.getElementById('modal-title').textContent = name;
+    document.getElementById('modal-img').src = dataUrl;
+    document.getElementById('modal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  } catch(e) {
+    alert('Could not load recipe: ' + e.message);
+  } finally {
+    btn.textContent = 'Render Card'; btn.classList.remove('loading');
+  }
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal')) closeModal();
+});
 </script>
 </body>
 </html>
