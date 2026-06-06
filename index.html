@@ -24,7 +24,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
 .list{padding:0 16px 20px}
 .count-bar{text-align:center;padding:8px;color:#8e8e93;font-size:12px}
 .recipe-card{background:#fff;border-radius:12px;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
-.recipe-main{display:flex;align-items:center;padding:12px 14px;gap:10px}
+.recipe-main{display:flex;align-items:center;padding:9px 12px;gap:8px}
 .recipe-info{flex:1;min-width:0}
 .recipe-name{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .recipe-badges{display:flex;gap:5px;margin-top:4px;flex-wrap:wrap}
@@ -36,11 +36,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
 .render-btn{flex-shrink:0;background:#1c1c1e;color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
 .render-btn:active{opacity:0.7}
 .render-btn.loading{opacity:0.5;pointer-events:none}
-.recipe-actions{display:flex;border-top:1px solid #f2f2f7}
-.action-btn{flex:1;padding:10px 4px;border:none;background:none;font-size:13px;font-weight:600;cursor:pointer;color:#1c1c1e;text-align:center}
-.action-btn:active{background:#f2f2f7}
-.action-btn+.action-btn{border-left:1px solid #f2f2f7}
-.action-btn.off{color:#c7c7cc;pointer-events:none}
+.recipe-btns{display:flex;gap:5px;flex-shrink:0}
+.icon-btn{width:36px;height:36px;border-radius:8px;border:none;background:#f2f2f7;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.icon-btn:active{background:#e5e5ea}
+.icon-btn.off{opacity:0.25;pointer-events:none}
+.icon-btn.loading{opacity:0.4;pointer-events:none}
 .empty{text-align:center;padding:60px 20px;color:#8e8e93}
 /* Modal shared */
 .modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);align-items:flex-end;justify-content:center}
@@ -174,10 +174,10 @@ let allRecipes = [], currentSort = 'az', currentFilter = 'all';
 function recipeActions(r) {
   const safe = r.name.replace(/'/g, "\'");
   const imgBtn = r.image
-    ? `<button class="action-btn" onclick="showImage('${safe}','${r.image}')">📷 View Image</button>`
-    : `<button class="action-btn off">📷 No Image</button>`;
-  const cardBtn = `<button class="action-btn" onclick="renderCard(this,'${safe}')">Render Card</button>`;
-  return `<div class="recipe-actions">${imgBtn}${cardBtn}</div>`;
+    ? `<button class="icon-btn" title="View sample image" onclick="showImage('${safe}','${r.image}')">📷</button>`
+    : `<button class="icon-btn off" title="No image yet">📷</button>`;
+  const cardBtn = `<button class="icon-btn" title="Render import card" onclick="renderCard(this,'${safe}')">🎴</button>`;
+  return `<div class="recipe-btns">${imgBtn}${cardBtn}</div>`;
 }
 
 let modalMode = 'card';
@@ -254,8 +254,8 @@ function renderList() {
             ${r.image        ? '<span class="badge badge-image">📷 Image</span>'     : ''}
           </div>
         </div>
+        ${recipeActions(r)}
       </div>
-      ${recipeActions(r)}
     </div>`).join('') :
     '<div class="empty"><div style="font-size:40px;margin-bottom:8px">📭</div><div>No recipes match</div></div>';
 }
@@ -326,7 +326,7 @@ function drawCard(name, lines) {
 
 // ── Render card modal ─────────────────────────────────────────────────────────
 async function renderCard(btn, name) {
-  btn.textContent='…'; btn.classList.add('loading');
+  btn.classList.add('loading');
   try {
     const xml = await fetch(SRC_URL(name)).then(r=>{ if(!r.ok) throw new Error(r.status); return r.text(); });
     const lines = parseRecipe(xml);
@@ -351,7 +351,7 @@ async function renderCard(btn, name) {
   } catch(e) {
     alert('Could not load recipe: ' + e.message);
   } finally {
-    btn.textContent='Render Card'; btn.classList.remove('loading');
+    btn.classList.remove('loading');
   }
 }
 
