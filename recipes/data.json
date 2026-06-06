@@ -1388,6 +1388,29 @@
       "tags": []
     },
     {
+      "id": "kodak-portra-urban",
+      "name": "Kodak Portra Urban",
+      "settings": {
+        "film_simulation": "Classic Chrome",
+        "dynamic_range": "DR200",
+        "grain_effect": "Weak, Small",
+        "color_chrome_effect": "Weak",
+        "color_chrome_fx_blue": "Off",
+        "white_balance": "Auto, +2 Red & -5 Blue",
+        "highlight": 1,
+        "shadow": -1,
+        "color": 2,
+        "sharpness": -2,
+        "high_iso_nr": -4,
+        "clarity": 0
+      },
+      "card_rendered": false,
+      "imported": false,
+      "image": "kodak-portra-urban.jpg",
+      "source_url": "https://film.recipes",
+      "tags": []
+    },
+    {
       "id": "kodak-pro-400",
       "name": "Kodak Pro 400",
       "settings": null,
@@ -2338,6 +2361,6 @@
       ]
     }
   ],
-  "last_updated": "2026-06-06",
-  "total": 229
+  "last_updated": "2026-06-07",
+  "total": 230
 }
