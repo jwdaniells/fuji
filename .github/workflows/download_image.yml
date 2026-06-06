@@ -9,46 +9,75 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download image
-        run: |
-          mkdir -p images
-          ID="${{ github.event.client_payload.id }}"
-          URL="${{ github.event.client_payload.url }}"
-          curl -fL \
-            -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36' \
-            -H 'Referer: https://fujixweekly.com/' \
-            -o "images/${ID}.jpg" \
-            "${URL}"
-          echo "Downloaded: $(wc -c < images/${ID}.jpg) bytes -> images/${ID}.jpg"
-
-      - name: Update data.json
+      - name: Download image and update data.json
         env:
           RECIPE_NAME: ${{ github.event.client_payload.name }}
-          RECIPE_ID: ${{ github.event.client_payload.id }}
+          RECIPE_ID:   ${{ github.event.client_payload.id }}
+          IMAGE_URL:   ${{ github.event.client_payload.url }}
+          GH_TOKEN:    ${{ secrets.GITHUB_TOKEN }}
         run: |
           python3 -c "
-          import json, os
+          import os, json, base64, urllib.request, ssl, time
+
           name = os.environ['RECIPE_NAME']
           rid  = os.environ['RECIPE_ID']
-          with open('recipes/data.json') as f:
-              d = json.load(f)
-          for r in d['recipes']:
-              if r['name'] == name:
-                  r['image'] = rid + '.jpg'
-                  print('Updated:', name)
-                  break
-          with open('recipes/data.json', 'w') as f:
-              json.dump(d, f, indent=2)
-          "
+          url  = os.environ['IMAGE_URL']
+          tok  = os.environ['GH_TOKEN']
+          repo = 'jwdaniells/fuji'
+          api  = 'https://api.github.com/repos/' + repo + '/contents'
+          hdrs = {'Authorization': 'token ' + tok, 'Content-Type': 'application/json'}
 
-      - name: Commit
-        env:
-          RECIPE_NAME: ${{ github.event.client_payload.name }}
-        run: |
-          git config user.name  'fuji-bot'
-          git config user.email 'bot@jwdaniells.github.io'
-          git pull --rebase origin main
-          git add images/ recipes/data.json
-          git diff --staged --quiet || git commit -m "Add sample image: ${RECIPE_NAME}"
-          git push
+          def api_get(path):
+              req = urllib.request.Request(api + path, headers=hdrs)
+              with urllib.request.urlopen(req) as r: return json.loads(r.read())
+
+          def api_put(path, data):
+              req = urllib.request.Request(api + path, data=json.dumps(data).encode(),
+                  method='PUT', headers=hdrs)
+              with urllib.request.urlopen(req) as r: return json.loads(r.read())
+
+          # 1. Download image
+          ctx = ssl.create_default_context()
+          ireq = urllib.request.Request(url, headers={
+              'User-Agent': 'Mozilla/5.0',
+              'Referer': 'https://fujixweekly.com/'})
+          with urllib.request.urlopen(ireq, context=ctx, timeout=30) as r:
+              img_bytes = r.read()
+          print(f'Downloaded {len(img_bytes):,} bytes')
+
+          # 2. Commit image via API
+          img_path = f'/images/{rid}.jpg'
+          img_b64  = base64.b64encode(img_bytes).decode()
+          try:
+              existing = api_get(img_path)
+              img_sha  = existing['sha']
+              api_put(img_path, {'message': f'Update image: {name}',
+                                  'content': img_b64, 'sha': img_sha})
+          except Exception:
+              api_put(img_path, {'message': f'Add image: {name}', 'content': img_b64})
+          print(f'Committed image: {rid}.jpg')
+
+          # 3. Update data.json via API (with retry for concurrent runs)
+          for attempt in range(5):
+              try:
+                  d = api_get('/recipes/data.json')
+                  data = json.loads(base64.b64decode(d['content'].replace('\n','')))
+                  for recipe in data['recipes']:
+                      if recipe['name'] == name:
+                          recipe['image'] = rid + '.jpg'
+                          print(f'Updated data.json for: {name}')
+                          break
+                  new_content = base64.b64encode(json.dumps(data, indent=2).encode()).decode()
+                  api_put('/recipes/data.json', {
+                      'message': f'Update image status: {name}',
+                      'content': new_content,
+                      'sha': d['sha']})
+                  print('data.json committed')
+                  break
+              except Exception as e:
+                  print(f'Attempt {attempt+1} failed: {e}')
+                  if attempt < 4: time.sleep(3 + attempt * 2)
+          "
