@@ -7,23 +7,22 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;background:#f2f2f7;color:#1c1c1e;overscroll-behavior:none}
-/* Header */
 .header{position:sticky;top:0;z-index:100;background:#1c1c1e;padding:12px 16px 8px;padding-top:calc(12px + env(safe-area-inset-top))}
-.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.header h1{color:#fff;font-size:20px;font-weight:700;letter-spacing:-0.3px}
-.header-stats{color:#8e8e93;font-size:12px;text-align:right;line-height:1.4}
+.header-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.header h1{color:#fff;font-size:20px;font-weight:700;letter-spacing:-0.3px;flex:1}
+.header-stats{color:#8e8e93;font-size:11px;text-align:right;line-height:1.5;white-space:nowrap}
+.settings-btn{background:none;border:none;color:#8e8e93;font-size:20px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0}
 .search-bar{position:relative}
 .search-bar input{width:100%;background:#2c2c2e;border:none;border-radius:10px;padding:9px 12px 9px 36px;color:#fff;font-size:16px;outline:none}
 .search-bar input::placeholder{color:#636366}
 .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#636366;font-size:14px}
-/* Controls */
 #controls{background:#f2f2f7;border-bottom:1px solid #e5e5ea;padding:8px 16px}
 .control-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:4px 0}
 .pill{white-space:nowrap;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:#e5e5ea;color:#1c1c1e;transition:all 0.15s}
 .pill.active{background:#1c1c1e;color:#fff}
-/* List */
+.sort-label{font-size:13px;color:#636366;white-space:nowrap;margin-right:2px}
 .list{padding:0 16px 20px}
-.section-label{font-size:12px;font-weight:600;color:#8e8e93;text-transform:uppercase;letter-spacing:0.4px;padding:16px 0 6px;margin:0 -16px;padding-left:16px;background:#f2f2f7;position:sticky;top:160px;z-index:10}
+.count-bar{text-align:center;padding:8px;color:#8e8e93;font-size:12px}
 .recipe-card{background:#fff;border-radius:12px;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
 .recipe-main{display:flex;align-items:center;padding:12px 14px;gap:10px}
 .recipe-info{flex:1;min-width:0}
@@ -37,27 +36,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
 .render-btn{flex-shrink:0;background:#1c1c1e;color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
 .render-btn:active{opacity:0.7}
 .render-btn.loading{opacity:0.5;pointer-events:none}
-/* Empty state */
 .empty{text-align:center;padding:60px 20px;color:#8e8e93}
-.empty svg{margin-bottom:12px;opacity:0.4}
-/* Count bar */
-.count-bar{text-align:center;padding:8px;color:#8e8e93;font-size:12px}
-/* Modal */
-.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.85);flex-direction:column;align-items:center;justify-content:center;padding:20px}
+/* Modal shared */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);align-items:flex-end;justify-content:center}
 .modal-overlay.show{display:flex}
-.modal-card{background:#fff;border-radius:16px;overflow:hidden;width:100%;max-width:380px;max-height:85vh;display:flex;flex-direction:column}
-.modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #e5e5ea;flex-shrink:0}
-.modal-title{font-size:15px;font-weight:700}
-.modal-close{background:none;border:none;font-size:20px;color:#636366;cursor:pointer;padding:0 4px;line-height:1}
+.modal-sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;display:flex;flex-direction:column;max-height:92vh}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px;border-bottom:1px solid #e5e5ea;flex-shrink:0}
+.modal-title{font-size:16px;font-weight:700}
+.modal-close{background:none;border:none;font-size:20px;color:#636366;cursor:pointer;line-height:1;padding:0 4px}
 .modal-body{overflow-y:auto;padding:16px;flex:1}
-.modal-body img{width:100%;border-radius:8px;display:block}
-.modal-hint{text-align:center;font-size:12px;color:#8e8e93;margin-top:10px;padding:0 8px}
-.modal-actions{padding:12px 16px;border-top:1px solid #e5e5ea;flex-shrink:0;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
-.modal-actions button{width:100%;padding:13px;border-radius:10px;border:none;font-size:15px;font-weight:600;cursor:pointer}
+.modal-body img{width:100%;border-radius:10px;display:block}
+.modal-hint{text-align:center;font-size:12px;color:#8e8e93;margin-top:10px}
+.modal-footer{padding:12px 16px;border-top:1px solid #e5e5ea;flex-shrink:0;padding-bottom:calc(12px + env(safe-area-inset-bottom));display:flex;gap:10px}
+.btn{flex:1;padding:13px;border-radius:10px;border:none;font-size:15px;font-weight:600;cursor:pointer}
+.btn:active{opacity:0.8}
+.btn-secondary{background:#f2f2f7;color:#1c1c1e}
 .btn-primary{background:#1c1c1e;color:#fff}
-.btn-primary:active{opacity:0.8}
-/* Sort label */
-.sort-label{font-size:13px;color:#636366;padding:0 2px;white-space:nowrap;display:flex;align-items:center}
+.btn-success{background:#34c759;color:#fff}
+.btn-success.already{background:#e5e5ea;color:#8e8e93}
+/* Settings modal */
+.settings-field{margin-bottom:16px}
+.settings-label{font-size:13px;font-weight:600;color:#636366;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:6px;display:block}
+.settings-input{width:100%;border:1px solid #e5e5ea;border-radius:10px;padding:11px 12px;font-size:14px;outline:none;font-family:monospace;background:#f9f9f9}
+.settings-input:focus{border-color:#1c1c1e}
+.settings-note{font-size:12px;color:#8e8e93;margin-top:6px;line-height:1.5}
+/* Toast */
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1c1c1e;color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;font-weight:600;z-index:300;opacity:0;transition:opacity 0.2s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
 </style>
 </head>
 <body>
@@ -66,6 +71,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
   <div class="header-top">
     <h1>📷 Fuji Recipes</h1>
     <div class="header-stats" id="stats">Loading…</div>
+    <button class="settings-btn" onclick="openSettings()" title="Settings">⚙️</button>
   </div>
   <div class="search-bar">
     <span class="search-icon">🔍</span>
@@ -91,33 +97,55 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
   </div>
 </div>
 
-<div id="app">
-  <div class="count-bar" id="count">Loading…</div>
-  <div class="list" id="list"></div>
-</div>
+<div class="count-bar" id="count">Loading…</div>
+<div class="list" id="list"></div>
 
-<!-- Modal -->
-<div class="modal-overlay" id="modal">
-  <div class="modal-card">
+<!-- Card modal -->
+<div class="modal-overlay" id="card-modal">
+  <div class="modal-sheet">
     <div class="modal-header">
       <span class="modal-title" id="modal-title">Recipe Card</span>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
       <img id="modal-img" src="" alt="Recipe card">
-      <p class="modal-hint">Press and hold the image to save to your photos</p>
+      <p class="modal-hint">Press and hold image to save to Photos</p>
     </div>
-    <div class="modal-actions">
-      <button class="btn-primary" onclick="closeModal()">Done</button>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+      <button class="btn btn-success" id="imported-btn" onclick="markImported()">✓ Imported</button>
     </div>
   </div>
 </div>
 
+<!-- Settings modal -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <span class="modal-title">Settings</span>
+      <button class="modal-close" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="settings-field">
+        <label class="settings-label">GitHub Token</label>
+        <input class="settings-input" id="token-input" type="password" placeholder="github_pat_…" autocomplete="off" autocorrect="off" spellcheck="false">
+        <p class="settings-note">Required to mark recipes as imported. Your token is stored locally on this device only — it is never sent anywhere except directly to the GitHub API.</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeSettings()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveToken()">Save Token</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 <canvas id="offscreen" style="display:none"></canvas>
 
 <script>
 const DATA_URL = 'https://raw.githubusercontent.com/jwdaniells/fuji/main/recipes/data.json';
 const SRC_URL  = n => `https://raw.githubusercontent.com/jwdaniells/fuji/main/recipes/source/${encodeURIComponent(n)}.txt`;
+const API_DATA = 'https://api.github.com/repos/jwdaniells/fuji/contents/recipes/data.json';
 
 const SIM_MAP = {
   'Provia':'Provia/Standard','Velvia':'Velvia/Vivid','Astia':'Astia/Soft',
@@ -136,85 +164,41 @@ const WB_MAP = {
   'Underwater':'Underwater','Custom':'Custom WB'
 };
 
-function parseRecipe(xml) {
-  const p = new DOMParser().parseFromString(xml, 'text/xml');
-  const g = tag => { const el = p.querySelector(tag); return el ? el.textContent.trim() : ''; };
-  const num = (v, n=1) => { const f=parseFloat(v); if(isNaN(f)) return '0'; return (f>0?'+':'')+f.toFixed(n).replace(/\.0$/,''); };
-
-  const sim = SIM_MAP[g('FilmSimulation')] || g('FilmSimulation');
-  const dr  = `DR${g('DynamicRange')||'100'}`;
-  const gfx = g('GrainEffect'); const gfsz = g('GrainEffectSize');
-  const grain = gfx==='OFF'?'Off': (gfx[0]+gfx.slice(1).toLowerCase())+', '+(gfsz[0]+gfsz.slice(1).toLowerCase());
-  const cce = g('ChromeEffect'); const ccef = cce==='OFF'?'Off':cce[0]+cce.slice(1).toLowerCase();
-  const ccb = g('ColorChromeBlue'); const ccbf = ccb==='OFF'?'Off':ccb[0]+ccb.slice(1).toLowerCase();
-  const wb  = WB_MAP[g('WhiteBalance')] || g('WhiteBalance');
-  const r   = parseInt(g('WBShiftR')||0), b=parseInt(g('WBShiftB')||0);
-  const wbLine = (r===0&&b===0) ? wb : `${wb}, ${r>=0?'+'+r:r} Red & ${b>=0?'+'+b:b} Blue`;
-
-  return [
-    ['Film Simulation', sim],
-    ['Dynamic Range', dr],
-    ['Grain Effect', grain],
-    ['Color Chrome Effect', ccef],
-    ['Color Chrome FX Blue', ccbf],
-    ['White Balance', wbLine],
-    ['Highlight', num(g('HighlightTone'))],
-    ['Shadow', num(g('ShadowTone'))],
-    ['Color', num(g('Color'))],
-    ['Sharpness', num(g('Sharpness'))],
-    ['High ISO NR', num(g('NoisReduction'))],
-    ['Clarity', num(g('Clarity'))],
-  ];
-}
-
-function drawCard(name, lines) {
-  const DPR = window.devicePixelRatio || 2;
-  const W = 750, MARGIN = 56, LINE_H = 84;
-  const H = 160 + lines.length * LINE_H + 80;
-  const c = document.getElementById('offscreen');
-  c.width = W * DPR; c.height = H * DPR;
-  c.style.width = W+'px'; c.style.height = H+'px';
-  const ctx = c.getContext('2d');
-  ctx.scale(DPR, DPR);
-  ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,W,H);
-  ctx.fillStyle = '#000000';
-  ctx.font = `bold 52px -apple-system, "Helvetica Neue", sans-serif`;
-  ctx.fillText(name, MARGIN, 72);
-  ctx.fillRect(MARGIN, 96, W - MARGIN*2, 5);
-  ctx.font = `40px -apple-system, "Helvetica Neue", sans-serif`;
-  lines.forEach(([label, val], i) => {
-    const y = 96 + 50 + (i+1)*LINE_H - 16;
-    ctx.fillText(`${label}: ${val}`, MARGIN, y);
-    ctx.fillRect(MARGIN, y+18, W-MARGIN*2, 2);
-  });
-  return c.toDataURL('image/png');
-}
-
 let allRecipes = [], currentSort = 'az', currentFilter = 'all';
+let currentRecipeName = null;
 
-fetch(DATA_URL).then(r=>r.json()).then(d => {
+function toast(msg, duration=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ── Data ──────────────────────────────────────────────────────────────────────
+fetch(DATA_URL + '?t=' + Date.now()).then(r=>r.json()).then(d => {
   allRecipes = d.recipes;
-  const total = allRecipes.length;
-  const imp   = allRecipes.filter(r=>r.imported).length;
-  const imgs  = allRecipes.filter(r=>r.image).length;
-  document.getElementById('stats').innerHTML = `${total} recipes<br>${imp} imported · ${imgs} with images`;
+  updateStats();
   renderList();
 });
 
-document.getElementById('search').addEventListener('input', renderList);
+function updateStats() {
+  const imp  = allRecipes.filter(r=>r.imported).length;
+  const imgs = allRecipes.filter(r=>r.image).length;
+  document.getElementById('stats').innerHTML =
+    `${allRecipes.length} recipes<br>${imp} imported · ${imgs} with images`;
+}
 
+// ── Controls ──────────────────────────────────────────────────────────────────
+document.getElementById('search').addEventListener('input', renderList);
 document.getElementById('controls').addEventListener('click', e => {
   const btn = e.target.closest('button');
   if (!btn) return;
   if (btn.dataset.sort) {
     document.querySelectorAll('[data-sort]').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    currentSort = btn.dataset.sort;
+    btn.classList.add('active'); currentSort = btn.dataset.sort;
   }
   if (btn.dataset.filter) {
     document.querySelectorAll('[data-filter]').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    currentFilter = btn.dataset.filter;
+    btn.classList.add('active'); currentFilter = btn.dataset.filter;
   }
   renderList();
 });
@@ -232,45 +216,174 @@ function renderList() {
   if (currentSort==='imported')   list.sort((a,b)=>b.imported-a.imported||a.name.localeCompare(b.name));
   document.getElementById('count').textContent = `${list.length} recipe${list.length!==1?'s':''}`;
   document.getElementById('list').innerHTML = list.length ? list.map(r => `
-    <div class="recipe-card">
+    <div class="recipe-card" id="card-${r.id}">
       <div class="recipe-main">
         <div class="recipe-info">
           <div class="recipe-name">${r.name}</div>
           <div class="recipe-badges">
             ${r.imported     ? '<span class="badge badge-imported">✓ Imported</span>' : '<span class="badge badge-pending">Not imported</span>'}
-            ${r.card_rendered? '<span class="badge badge-card">Card ready</span>'     : ''}
-            ${r.image        ? '<span class="badge badge-image">📷 Image</span>'      : ''}
+            ${r.card_rendered? '<span class="badge badge-card">Card ready</span>'    : ''}
+            ${r.image        ? '<span class="badge badge-image">📷 Image</span>'     : ''}
           </div>
         </div>
-        <button class="render-btn" onclick="renderCard(this,'${r.name.replace(/'/g,"\\'")}')">Render Card</button>
+        <button class="render-btn" onclick="renderCard(this,'${r.name.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')">Render Card</button>
       </div>
-    </div>`).join('') : '<div class="empty"><div style="font-size:40px;margin-bottom:8px">📭</div><div>No recipes match</div></div>';
+    </div>`).join('') :
+    '<div class="empty"><div style="font-size:40px;margin-bottom:8px">📭</div><div>No recipes match</div></div>';
 }
 
+// ── Recipe parser + card drawer ───────────────────────────────────────────────
+function parseRecipe(xml) {
+  const p = new DOMParser().parseFromString(xml, 'text/xml');
+  const g = tag => { const el = p.querySelector(tag); return el ? el.textContent.trim() : ''; };
+  const fmt = v => { const f=parseFloat(v); return isNaN(f)?'0':(f>0?'+':'')+f.toFixed(2).replace(/\.?0+$/,''); };
+  const sim = SIM_MAP[g('FilmSimulation')] || g('FilmSimulation');
+  const gfx = g('GrainEffect'), gfsz = g('GrainEffectSize');
+  const grain = gfx==='OFF'?'Off':`${gfx[0]+gfx.slice(1).toLowerCase()}, ${gfsz[0]+gfsz.slice(1).toLowerCase()}`;
+  const ccef = (v => v==='OFF'?'Off':v[0]+v.slice(1).toLowerCase())(g('ChromeEffect'));
+  const ccbf = (v => v==='OFF'?'Off':v[0]+v.slice(1).toLowerCase())(g('ColorChromeBlue'));
+  const wb = WB_MAP[g('WhiteBalance')] || g('WhiteBalance');
+  const r = parseInt(g('WBShiftR')||0), b = parseInt(g('WBShiftB')||0);
+  const wbLine = (r===0&&b===0) ? wb : `${wb}, ${r>=0?'+'+r:r} Red & ${b>=0?'+'+b:b} Blue`;
+  return [
+    ['Film Simulation', sim],
+    ['Dynamic Range', `DR${g('DynamicRange')||'100'}`],
+    ['Grain Effect', grain],
+    ['Color Chrome Effect', ccef],
+    ['Color Chrome FX Blue', ccbf],
+    ['White Balance', wbLine],
+    ['Highlight', fmt(g('HighlightTone'))],
+    ['Shadow',    fmt(g('ShadowTone'))],
+    ['Color',     fmt(g('Color'))],
+    ['Sharpness', fmt(g('Sharpness'))],
+    ['High ISO NR', fmt(g('NoisReduction'))],
+    ['Clarity',   fmt(g('Clarity'))],
+  ];
+}
+
+function drawCard(name, lines) {
+  const DPR = Math.min(window.devicePixelRatio||2, 3);
+  const W = 750, M = 56, LH = 84;
+  const H = 150 + lines.length * LH + 60;
+  const c = document.getElementById('offscreen');
+  c.width = W*DPR; c.height = H*DPR;
+  const ctx = c.getContext('2d');
+  ctx.scale(DPR, DPR);
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#000';
+  ctx.font = 'bold 52px -apple-system,"Helvetica Neue",sans-serif';
+  ctx.fillText(name, M, 68);
+  ctx.fillRect(M, 88, W-M*2, 4);
+  ctx.font = '40px -apple-system,"Helvetica Neue",sans-serif';
+  lines.forEach(([label,val],i) => {
+    const y = 88 + 48 + (i+1)*LH - 14;
+    ctx.fillText(`${label}: ${val}`, M, y);
+    ctx.fillRect(M, y+16, W-M*2, 2);
+  });
+  return c.toDataURL('image/png');
+}
+
+// ── Render card modal ─────────────────────────────────────────────────────────
 async function renderCard(btn, name) {
-  btn.textContent = '…'; btn.classList.add('loading');
+  btn.textContent='…'; btn.classList.add('loading');
   try {
     const xml = await fetch(SRC_URL(name)).then(r=>{ if(!r.ok) throw new Error(r.status); return r.text(); });
     const lines = parseRecipe(xml);
     const dataUrl = drawCard(name, lines);
+    currentRecipeName = name;
     document.getElementById('modal-title').textContent = name;
     document.getElementById('modal-img').src = dataUrl;
-    document.getElementById('modal').classList.add('show');
+    const recipe = allRecipes.find(r=>r.name===name);
+    const impBtn = document.getElementById('imported-btn');
+    if (recipe && recipe.imported) {
+      impBtn.textContent = '✓ Already imported';
+      impBtn.className = 'btn btn-success already';
+      impBtn.onclick = null;
+    } else {
+      impBtn.textContent = '✓ Imported';
+      impBtn.className = 'btn btn-success';
+      impBtn.onclick = markImported;
+    }
+    document.getElementById('card-modal').classList.add('show');
     document.body.style.overflow = 'hidden';
   } catch(e) {
     alert('Could not load recipe: ' + e.message);
   } finally {
-    btn.textContent = 'Render Card'; btn.classList.remove('loading');
+    btn.textContent='Render Card'; btn.classList.remove('loading');
   }
 }
 
 function closeModal() {
-  document.getElementById('modal').classList.remove('show');
+  document.getElementById('card-modal').classList.remove('show');
   document.body.style.overflow = '';
 }
 
-document.getElementById('modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('modal')) closeModal();
+// ── Mark as imported ──────────────────────────────────────────────────────────
+async function markImported() {
+  const token = localStorage.getItem('gh_token');
+  if (!token) { openSettings(); toast('Add your GitHub token in Settings first'); return; }
+  const btn = document.getElementById('imported-btn');
+  btn.textContent = 'Saving…'; btn.style.opacity = '0.6'; btn.onclick = null;
+  try {
+    // Get current data.json SHA + content
+    const meta = await fetch(API_DATA, {
+      headers:{'Authorization':`token ${token}`}
+    }).then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); });
+    const data = JSON.parse(atob(meta.content.replace(/\n/g,'')));
+    const idx = data.recipes.findIndex(r=>r.name===currentRecipeName);
+    if (idx === -1) throw new Error('Recipe not found in data.json');
+    data.recipes[idx].imported = true;
+    data.last_updated = new Date().toISOString().slice(0,10);
+    const newContent = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+    await fetch(API_DATA, {
+      method:'PUT',
+      headers:{'Authorization':`token ${token}`,'Content-Type':'application/json'},
+      body: JSON.stringify({
+        message: `Mark "${currentRecipeName}" as imported`,
+        content: newContent,
+        sha: meta.sha
+      })
+    }).then(r=>{ if(!r.ok) throw new Error(r.status); });
+    // Update local state
+    allRecipes[idx].imported = true;
+    updateStats();
+    renderList();
+    btn.textContent = '✓ Already imported';
+    btn.className = 'btn btn-success already';
+    toast(`✓ ${currentRecipeName} marked as imported`);
+  } catch(e) {
+    btn.textContent = '✓ Imported';
+    btn.style.opacity = '';
+    btn.onclick = markImported;
+    toast('Error: ' + e.message);
+  }
+}
+
+// ── Settings ──────────────────────────────────────────────────────────────────
+function openSettings() {
+  const stored = localStorage.getItem('gh_token') || '';
+  document.getElementById('token-input').value = stored ? '••••••••••••••••' : '';
+  document.getElementById('settings-modal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeSettings() {
+  document.getElementById('settings-modal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+function saveToken() {
+  const val = document.getElementById('token-input').value.trim();
+  if (val && !val.startsWith('•')) {
+    localStorage.setItem('gh_token', val);
+    toast('Token saved');
+  }
+  closeSettings();
+}
+
+document.getElementById('card-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('card-modal')) closeModal();
+});
+document.getElementById('settings-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('settings-modal')) closeSettings();
 });
 </script>
 </body>
