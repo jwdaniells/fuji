@@ -263,7 +263,7 @@ function parseRecipe(xml) {
 
 function drawCard(name, lines) {
   const DPR = Math.min(window.devicePixelRatio||2, 3);
-  const W = 750, M = 56, LH = 84;
+  const W = 750, M = 56, LH = 88;
   const H = 150 + lines.length * LH + 60;
   const c = document.getElementById('offscreen');
   c.width = W*DPR; c.height = H*DPR;
@@ -271,14 +271,27 @@ function drawCard(name, lines) {
   ctx.scale(DPR, DPR);
   ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H);
   ctx.fillStyle='#000';
-  ctx.font = 'bold 52px -apple-system,"Helvetica Neue",sans-serif';
+  const FACE = '-apple-system,"Helvetica Neue",sans-serif';
+  const maxW = W - M*2;
+  // auto-fit a text string to maxW, starting from size, min 24
+  function fitFont(text, startSize, bold) {
+    for (let sz = startSize; sz >= 24; sz -= 2) {
+      ctx.font = `${bold?'bold ':''} ${sz}px ${FACE}`;
+      if (ctx.measureText(text).width <= maxW) return sz;
+    }
+    return 24;
+  }
+  const titleSz = fitFont(name, 52, true);
+  ctx.font = `bold ${titleSz}px ${FACE}`;
   ctx.fillText(name, M, 68);
-  ctx.fillRect(M, 88, W-M*2, 4);
-  ctx.font = '40px -apple-system,"Helvetica Neue",sans-serif';
+  ctx.fillRect(M, 90, maxW, 4);
   lines.forEach(([label,val],i) => {
-    const y = 88 + 48 + (i+1)*LH - 14;
-    ctx.fillText(`${label}: ${val}`, M, y);
-    ctx.fillRect(M, y+16, W-M*2, 2);
+    const text = `${label}: ${val}`;
+    const sz = fitFont(text, 40, false);
+    ctx.font = `${sz}px ${FACE}`;
+    const y = 90 + 50 + (i+1)*LH - 14;
+    ctx.fillText(text, M, y);
+    ctx.fillRect(M, y+18, maxW, 2);
   });
   return c.toDataURL('image/png');
 }
