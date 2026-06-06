@@ -36,6 +36,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
 .render-btn{flex-shrink:0;background:#1c1c1e;color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
 .render-btn:active{opacity:0.7}
 .render-btn.loading{opacity:0.5;pointer-events:none}
+.recipe-actions{display:flex;border-top:1px solid #f2f2f7}
+.action-btn{flex:1;padding:10px 4px;border:none;background:none;font-size:13px;font-weight:600;cursor:pointer;color:#1c1c1e;text-align:center}
+.action-btn:active{background:#f2f2f7}
+.action-btn+.action-btn{border-left:1px solid #f2f2f7}
+.action-btn.off{color:#c7c7cc;pointer-events:none}
 .empty{text-align:center;padding:60px 20px;color:#8e8e93}
 /* Modal shared */
 .modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);align-items:flex-end;justify-content:center}
@@ -165,6 +170,29 @@ const WB_MAP = {
 };
 
 let allRecipes = [], currentSort = 'az', currentFilter = 'all';
+
+function recipeActions(r) {
+  const safe = r.name.replace(/'/g, "\'");
+  const imgBtn = r.image
+    ? `<button class="action-btn" onclick="showImage('${safe}','${r.image}')">📷 View Image</button>`
+    : `<button class="action-btn off">📷 No Image</button>`;
+  const cardBtn = `<button class="action-btn" onclick="renderCard(this,'${safe}')">Render Card</button>`;
+  return `<div class="recipe-actions">${imgBtn}${cardBtn}</div>`;
+}
+
+let modalMode = 'card';
+
+function showImage(name, imageFile) {
+  currentRecipeName = name;
+  modalMode = 'image';
+  document.getElementById('modal-title').textContent = name;
+  document.getElementById('modal-img').src =
+    'https://raw.githubusercontent.com/jwdaniells/fuji/main/images/' + imageFile +
+    '?t=' + Date.now();
+  document.getElementById('imported-btn').style.display = 'none';
+  document.getElementById('card-modal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
 let currentRecipeName = null;
 
 function toast(msg, duration=2500) {
@@ -226,8 +254,8 @@ function renderList() {
             ${r.image        ? '<span class="badge badge-image">📷 Image</span>'     : ''}
           </div>
         </div>
-        <button class="render-btn" onclick="renderCard(this,'${r.name.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')">Render Card</button>
       </div>
+      ${recipeActions(r)}
     </div>`).join('') :
     '<div class="empty"><div style="font-size:40px;margin-bottom:8px">📭</div><div>No recipes match</div></div>';
 }
@@ -304,6 +332,7 @@ async function renderCard(btn, name) {
     const lines = parseRecipe(xml);
     const dataUrl = drawCard(name, lines);
     currentRecipeName = name;
+    modalMode = 'card';
     document.getElementById('modal-title').textContent = name;
     document.getElementById('modal-img').src = dataUrl;
     const recipe = allRecipes.find(r=>r.name===name);
@@ -328,7 +357,9 @@ async function renderCard(btn, name) {
 
 function closeModal() {
   document.getElementById('card-modal').classList.remove('show');
+  document.getElementById('imported-btn').style.display = '';
   document.body.style.overflow = '';
+  modalMode = 'card';
 }
 
 // ── Mark as imported ──────────────────────────────────────────────────────────
