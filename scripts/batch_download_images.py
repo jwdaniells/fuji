@@ -1,5 +1,5 @@
-import json, base64, re, time, os
-import requests
+import json, base64, re, time, os, subprocess
+import urllib.request
 
 tok  = os.environ["GH_TOKEN"]
 repo = "jwdaniells/fuji"
@@ -7,33 +7,35 @@ api  = f"https://api.github.com/repos/{repo}/contents"
 hdrs = {"Authorization": f"token {tok}", "Content-Type": "application/json"}
 
 def api_get(path):
-    r = requests.get(api + path, headers=hdrs, timeout=30)
-    r.raise_for_status()
-    return r.json()
+    req = urllib.request.Request(api + path, headers=hdrs)
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return json.loads(r.read())
 
 def api_put(path, msg, b64, sha=None):
     body = {"message": msg, "content": b64}
-    if sha:
-        body["sha"] = sha
-    r = requests.put(api + path, json=body, headers=hdrs, timeout=30)
-    r.raise_for_status()
-    return r.json()
+    if sha: body["sha"] = sha
+    data = json.dumps(body).encode()
+    req = urllib.request.Request(api + path, data=data, method="PUT", headers=hdrs)
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return json.loads(r.read())
 
-PAGE_HDRS = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.9",
-}
+def fetch_page_curl(url):
+    """Use curl to fetch page - better Cloudflare handling."""
+    result = subprocess.run([
+        "curl", "-sL", "--max-time", "20",
+        "-A", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "-H", "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "-H", "Accept-Language: en-US,en;q=0.9",
+        url
+    ], capture_output=True, text=True, timeout=25)
+    return result.stdout if result.returncode == 0 else None
 
 def get_og_image(source_url):
-    try:
-        r = requests.get(source_url, headers=PAGE_HDRS, timeout=20, allow_redirects=True)
-        html = r.text
-    except Exception as e:
-        print(f"  Page fetch error: {e}")
+    html = fetch_page_curl(source_url)
+    if not html:
         return None
 
-    # og:image meta tag
+    # og:image (most reliable)
     m = re.search(r'property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']', html)
     if not m:
         m = re.search(r'content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']', html)
@@ -42,33 +44,32 @@ def get_og_image(source_url):
         if "270%2C270" not in url and "cropped" not in url and "app-store" not in url:
             return url
 
-    # Fallback: first large wp-content image
+    # First image in body
     skip = ["cropped", "logo", "icon", "270x270", "app-store", "img_5106", "android", "apple-app"]
     for img in re.findall(r'https://[^\s"]+/wp-content/uploads/\d{4}/\d{2}/[^\s"]+\.jpg', html):
         if not any(s in img for s in skip):
             return img
-
-    # film.recipes
     for img in re.findall(r'https://film\.recipes/wp-content/uploads/[^\s"]+\.jpg', html):
         if not any(s in img for s in skip):
             return img
-
-    # captnlook wixstatic
     for img in re.findall(r'https://static\.wixstatic\.com/media/[^\s"]+\.jpg', html):
         return img
-
     return None
 
-def download_image(img_url, referer):
-    h = dict(PAGE_HDRS)
-    h["Referer"] = referer
-    try:
-        r = requests.get(img_url, headers=h, timeout=30)
-        ct = r.headers.get("Content-Type", "")
-        if len(r.content) > 5000 and ("image" in ct or img_url.endswith(".jpg")):
-            return r.content
-    except Exception as e:
-        print(f"  Image download error: {e}")
+def download_image_curl(img_url, referer):
+    """Download image with curl."""
+    result = subprocess.run([
+        "curl", "-sL", "--max-time", "30",
+        "-A", "Mozilla/5.0",
+        "-H", f"Referer: {referer}",
+        "-o", "/tmp/recipe_img.jpg",
+        img_url
+    ], capture_output=True, timeout=35)
+    if result.returncode == 0:
+        with open("/tmp/recipe_img.jpg", "rb") as f:
+            data = f.read()
+        if len(data) > 5000:
+            return data
     return None
 
 # Load data.json
@@ -96,7 +97,7 @@ for i, (rid, name, src_url) in enumerate(missing):
 
     print(f"  -> {img_url[:80]}")
     referer = "https://fujixweekly.com/" if "fujixweekly" in src_url else src_url
-    img_data = download_image(img_url, referer)
+    img_data = download_image_curl(img_url, referer)
     if not img_data:
         print(f"  Download failed")
         no_img.append(name)
@@ -124,9 +125,8 @@ for i, (rid, name, src_url) in enumerate(missing):
             break
 
     success.append(name)
-    time.sleep(1.5)
+    time.sleep(1.0)
 
-# Save data.json
 print(f"\nCommitting data.json ({len(success)} images added)...")
 data["last_updated"] = "2026-06-06"
 new_b64 = base64.b64encode(json.dumps(data, indent=2).encode()).decode()
@@ -135,6 +135,6 @@ api_put("/recipes/data.json", f"Add images for {len(success)} recipes", new_b64,
 
 print(f"\nDone: {len(success)} succeeded, {len(no_img)} failed")
 if no_img:
-    print("No image found for:")
+    print("No image found:")
     for n in no_img:
         print(f"  - {n}")
