@@ -1,0 +1,15 @@
+OB - Alpine Negative
+Source: https://www.osan-bilgi.com/alpine-negative
+
+Film Simulation: Classic Negative
+Dynamic Range: DR400
+Grain Effect: Off
+Color Chrome Effect: Off
+Color Chrome FX Blue: Strong
+White Balance: Auto, +2 Red & -4 Blue
+Highlight: -2
+Shadow: +1
+Color: +4
+Sharpness: 0
+High ISO NR: -4
+Clarity: -3
