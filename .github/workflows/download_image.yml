@@ -48,6 +48,7 @@ jobs:
         run: |
           git config user.name  'fuji-bot'
           git config user.email 'bot@jwdaniells.github.io'
+          git pull --rebase origin main
           git add images/ recipes/data.json
           git diff --staged --quiet || git commit -m "Add sample image: ${RECIPE_NAME}"
           git push
