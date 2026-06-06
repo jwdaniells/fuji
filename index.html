@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fuji Recipes</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f5f5;color:#1a1a1a}
+  header{background:#1a1a1a;color:#fff;padding:20px 24px;display:flex;align-items:center;gap:16px}
+  header h1{font-size:20px;font-weight:700;letter-spacing:0.5px}
+  .stats{font-size:13px;color:#aaa;margin-left:auto;display:flex;gap:16px}
+  .filters{padding:16px 24px;background:#fff;border-bottom:1px solid #e5e5e5;display:flex;gap:10px;flex-wrap:wrap}
+  .filters input{padding:7px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;flex:1;min-width:200px}
+  .filters select{padding:7px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;background:#fff}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;padding:20px 24px}
+  .card{background:#fff;border-radius:8px;padding:16px;border:1px solid #e5e5e5;cursor:pointer;transition:box-shadow 0.15s}
+  .card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.1)}
+  .card-name{font-weight:600;font-size:15px;margin-bottom:10px}
+  .badges{display:flex;gap:6px;flex-wrap:wrap}
+  .badge{font-size:11px;font-weight:600;padding:3px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:0.3px}
+  .badge-imported{background:#d1fae5;color:#065f46}
+  .badge-rendered{background:#dbeafe;color:#1e40af}
+  .badge-image{background:#fef3c7;color:#92400e}
+  .badge-pending{background:#f3f4f6;color:#6b7280}
+  .count{font-size:13px;color:#666;padding:8px 24px 0}
+  .no-results{text-align:center;padding:60px 24px;color:#999;font-size:15px}
+</style>
+</head>
+<body>
+<header>
+  <h1>📷 Fuji Recipes</h1>
+  <div class="stats">
+    <span id="stat-total">— recipes</span>
+    <span id="stat-imported">— imported</span>
+    <span id="stat-images">— with images</span>
+  </div>
+</header>
+<div class="filters">
+  <input type="text" id="search" placeholder="Search recipes…" oninput="render()">
+  <select id="filter" onchange="render()">
+    <option value="all">All recipes</option>
+    <option value="not-imported">Not yet imported</option>
+    <option value="imported">Imported</option>
+    <option value="no-image">No image yet</option>
+    <option value="has-image">Has image</option>
+    <option value="rendered">Card rendered</option>
+  </select>
+</div>
+<div class="count" id="count"></div>
+<div class="grid" id="grid"></div>
+<script>
+let recipes = [];
+fetch("recipes/data.json")
+  .then(r => r.json())
+  .then(d => {
+    recipes = d.recipes;
+    document.getElementById("stat-total").textContent = recipes.length + " recipes";
+    document.getElementById("stat-imported").textContent = recipes.filter(r=>r.imported).length + " imported";
+    document.getElementById("stat-images").textContent = recipes.filter(r=>r.image).length + " with images";
+    render();
+  });
+function render() {
+  const q = document.getElementById("search").value.toLowerCase();
+  const f = document.getElementById("filter").value;
+  let list = recipes.filter(r => r.name.toLowerCase().includes(q));
+  if (f === "not-imported") list = list.filter(r => !r.imported);
+  if (f === "imported")     list = list.filter(r =>  r.imported);
+  if (f === "no-image")     list = list.filter(r => !r.image);
+  if (f === "has-image")    list = list.filter(r =>  r.image);
+  if (f === "rendered")     list = list.filter(r =>  r.card_rendered);
+  document.getElementById("count").textContent = list.length + " recipes shown";
+  const grid = document.getElementById("grid");
+  if (!list.length) { grid.innerHTML = '<div class="no-results">No recipes match</div>'; return; }
+  grid.innerHTML = list.map(r => `
+    <div class="card">
+      <div class="card-name">${r.name}</div>
+      <div class="badges">
+        ${r.imported  ? '<span class="badge badge-imported">✓ Imported</span>' : '<span class="badge badge-pending">Not imported</span>'}
+        ${r.card_rendered ? '<span class="badge badge-rendered">Card ready</span>' : ''}
+        ${r.image ? '<span class="badge badge-image">📷 Image</span>' : ''}
+      </div>
+    </div>`).join('');
+}
+</script>
+</body>
+</html>
