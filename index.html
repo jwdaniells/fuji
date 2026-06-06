@@ -33,6 +33,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
 .badge-pending{background:#f1f1f1;color:#8e8e93}
 .badge-card{background:#dbeafe;color:#1e40af}
 .badge-image{background:#fef3c7;color:#92400e}
+.badge-ai{background:#ede9fe;color:#5b21b6}
 .recipe-btns{display:flex;gap:5px;flex-shrink:0}
 .icon-btn{width:36px;height:36px;border-radius:8px;border:none;background:#f2f2f7;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
 .icon-btn:active{background:#e5e5ea}
@@ -100,8 +101,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
     <button class="pill active" data-filter="all">All</button>
     <button class="pill" data-filter="not-imported">Not imported</button>
     <button class="pill" data-filter="imported">Imported</button>
-    <button class="pill" data-filter="no-card">Needs card</button>
     <button class="pill" data-filter="has-image">Has image</button>
+    <button class="pill" data-filter="ai">🤖 AI</button>
   </div>
 </div>
 
@@ -289,8 +290,8 @@ function renderList() {
   let list = allRecipes.filter(r => r.name.toLowerCase().includes(q));
   if (currentFilter==='not-imported') list = list.filter(r=>!r.imported);
   if (currentFilter==='imported')     list = list.filter(r=> r.imported);
-  if (currentFilter==='no-card')      list = list.filter(r=>!r.card_rendered);
   if (currentFilter==='has-image')    list = list.filter(r=> r.image);
+  if (currentFilter==='ai')           list = list.filter(r=> r.tags && r.tags.includes('AI'));
   if (currentSort==='az') list.sort((a,b)=>a.name.localeCompare(b.name));
   if (currentSort==='za') list.sort((a,b)=>b.name.localeCompare(a.name));
   if (currentSort==='unimported') list.sort((a,b)=>a.imported-b.imported||a.name.localeCompare(b.name));
@@ -305,6 +306,7 @@ function renderList() {
             ${r.imported     ? '<span class="badge badge-imported">✓ Imported</span>' : '<span class="badge badge-pending">Not imported</span>'}
             ${r.card_rendered? '<span class="badge badge-card">Card ready</span>'    : ''}
             ${r.image        ? '<span class="badge badge-image">📷 Image</span>'     : ''}
+            ${r.tags && r.tags.includes('AI') ? '<span class="badge badge-ai">🤖 AI</span>' : ''}
           </div>
         </div>
         ${recipeActions(r)}
@@ -486,3 +488,4 @@ document.getElementById('settings-modal').addEventListener('click', e => {
 </script>
 </body>
 </html>
+
