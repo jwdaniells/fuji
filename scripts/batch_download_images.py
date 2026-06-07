@@ -1,4 +1,4 @@
-import json, base64, re, time, os, subprocess
+import json, base64, re, time, os, subprocess, datetime
 import urllib.request
 
 tok  = os.environ["GH_TOKEN"]
@@ -19,119 +19,114 @@ def api_put(path, msg, b64, sha=None):
     with urllib.request.urlopen(req, timeout=30) as r:
         return json.loads(r.read())
 
-def fetch_curl(url, extra_headers=None):
-    cmd = [
-        "curl", "-sL", "--max-time", "20",
-        "-A", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        "-H", "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "-H", "Accept-Language: en-US,en;q=0.9",
-    ]
+def fetch_curl(url, user_agent=None, extra_headers=None):
+    ua = user_agent or "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+    cmd = ["curl", "-sL", "--max-time", "25", "-A", ua]
     if extra_headers:
         for h in extra_headers:
             cmd += ["-H", h]
     cmd.append(url)
-    result = subprocess.run(cmd, capture_output=True, text=True, timeout=25)
-    return result.stdout if result.returncode == 0 else None
-
-def fetch_json(url):
-    """Fetch JSON from WP REST API"""
-    cmd = [
-        "curl", "-sL", "--max-time", "20",
-        "-H", "Accept: application/json",
-        "-A", "Mozilla/5.0",
-        url
-    ]
-    result = subprocess.run(cmd, capture_output=True, text=True, timeout=25)
-    if result.returncode == 0 and result.stdout.strip():
-        try:
-            return json.loads(result.stdout)
-        except:
-            return None
+    result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+    if result.returncode == 0 and len(result.stdout) > 200:
+        return result.stdout
     return None
 
-def get_wp_featured_image(source_url):
-    """Use WordPress REST API to get featured image URL"""
-    # Extract slug from URL
-    slug = source_url.rstrip('/').split('/')[-1]
-    
-    # Try WP REST API
-    wp_api = f"https://fujixweekly.com/wp-json/wp/v2/posts?slug={slug}&_fields=id,featured_media"
-    data = fetch_json(wp_api)
-    if not data or not isinstance(data, list) or not data:
+def get_wayback_url(source_url):
+    """Get a recent snapshot URL from the Wayback Machine"""
+    wb_api = f"http://archive.org/wayback/available?url={source_url}"
+    result = subprocess.run(
+        ["curl", "-sL", "--max-time", "10", wb_api],
+        capture_output=True, text=True, timeout=15
+    )
+    if result.returncode == 0:
+        try:
+            data = json.loads(result.stdout)
+            snap = data.get("archived_snapshots", {}).get("closest", {})
+            if snap.get("available"):
+                return snap["url"]
+        except:
+            pass
+    return None
+
+def get_og_image_from_html(html):
+    """Extract og:image or first body image from HTML"""
+    if not html:
         return None
     
-    post = data[0]
-    media_id = post.get('featured_media')
-    if not media_id:
-        return None
-    
-    # Get media URL
-    media_api = f"https://fujixweekly.com/wp-json/wp/v2/media/{media_id}?_fields=source_url,media_details"
-    media_data = fetch_json(media_api)
-    if not media_data:
-        return None
-    
-    # Try to get a large size
-    sizes = media_data.get('media_details', {}).get('sizes', {})
-    for size in ['large', 'medium_large', 'medium', 'full']:
-        if size in sizes:
-            url = sizes[size].get('source_url')
-            if url:
+    # og:image meta tag
+    for pattern in [
+        r'property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']',
+        r'content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']',
+    ]:
+        m = re.search(pattern, html)
+        if m:
+            url = m.group(1)
+            if "270%2C270" not in url and "cropped" not in url and "app-store" not in url:
                 return url
     
-    # Fall back to source_url
-    return media_data.get('source_url')
-
-def get_og_image(source_url):
-    """Get og:image from page HTML"""
-    html = fetch_curl(source_url)
-    if not html or len(html) < 100:
-        return None
-
-    # og:image (most reliable)
-    m = re.search(r'property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']', html)
-    if not m:
-        m = re.search(r'content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']', html)
-    if m:
-        url = m.group(1)
-        if "270%2C270" not in url and "cropped" not in url and "app-store" not in url:
+    # Body images - fujixweekly wp-content
+    skip = ["cropped", "logo", "icon", "270x270", "app-store", "img_5106", "android", "apple-app", "banner", "header"]
+    
+    # i0.wp.com pattern (WordPress CDN) - convert to direct URL
+    for m in re.finditer(r'https://i0\.wp\.com/(fujixweekly\.com/wp-content/uploads/\d{4}/\d{2}/[^?"\s]+\.jpg)', html):
+        img_path = m.group(1)
+        if not any(s in img_path.lower() for s in skip):
+            return f"https://{img_path}"
+    
+    # Direct wp-content URLs
+    for m in re.finditer(r'https://fujixweekly\.com/wp-content/uploads/\d{4}/\d{2}/[^\s"\'<>]+\.jpg', html):
+        url = m.group(0)
+        if not any(s in url.lower() for s in skip):
             return url
-
-    # First image in body
-    skip = ["cropped", "logo", "icon", "270x270", "app-store", "img_5106", "android", "apple-app"]
-    for img in re.findall(r'https://[^\s"]+/wp-content/uploads/\d{4}/\d{2}/[^\s"]+\.jpg', html):
-        if not any(s in img for s in skip):
-            return img
-    for img in re.findall(r'https://film\.recipes/wp-content/uploads/[^\s"]+\.jpg', html):
-        if not any(s in img for s in skip):
-            return img
-    for img in re.findall(r'https://static\.wixstatic\.com/media/[^\s"]+\.jpg', html):
-        return img
-    for img in re.findall(r'https://images\.squarespace-cdn\.com/content/[^\s"]+\.jpg', html):
-        if not any(s in img for s in skip):
-            return img
+    
+    # film.recipes
+    for m in re.finditer(r'https://film\.recipes/wp-content/uploads/[^\s"\'<>]+\.jpg', html):
+        url = m.group(0)
+        if not any(s in url.lower() for s in skip):
+            return url
+    
+    # squarespace/wixstatic
+    for m in re.finditer(r'https://(?:images\.squarespace-cdn|static\.wixstatic)\.com/[^\s"\'<>]+\.jpg', html):
+        url = m.group(0)
+        if not any(s in url.lower() for s in skip):
+            return url
+    
     return None
 
-def get_image_url(rid, source_url):
-    """Try multiple strategies to get image URL"""
+def get_image_url_for_page(source_url):
+    """Try multiple strategies to get an image URL from a page"""
     
-    # Strategy 1: WordPress REST API (for fujixweekly)
-    if 'fujixweekly.com' in source_url:
-        img_url = get_wp_featured_image(source_url)
-        if img_url:
-            print(f"  [WP API] {img_url[:80]}")
-            return img_url, source_url
+    # Strategy 1: Direct fetch with Googlebot user agent
+    for ua in [
+        "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+        "Googlebot-Image/1.0",
+        "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    ]:
+        html = fetch_curl(source_url, user_agent=ua)
+        if html and len(html) > 5000:
+            img_url = get_og_image_from_html(html)
+            if img_url:
+                print(f"  [direct/{ua[:20]}] {img_url[:80]}")
+                return img_url
+        time.sleep(1)
     
-    # Strategy 2: Scrape og:image from page
-    img_url = get_og_image(source_url)
-    if img_url:
-        referer = "https://fujixweekly.com/" if "fujixweekly" in source_url else source_url
-        print(f"  [og:image] {img_url[:80]}")
-        return img_url, referer
+    # Strategy 2: Wayback Machine snapshot
+    print(f"  Trying Wayback Machine...")
+    wb_url = get_wayback_url(source_url)
+    if wb_url:
+        print(f"  [wayback] snapshot: {wb_url[:80]}")
+        html = fetch_curl(wb_url)
+        if html:
+            img_url = get_og_image_from_html(html)
+            if img_url:
+                print(f"  [wayback img] {img_url[:80]}")
+                return img_url
     
-    return None, None
+    return None
 
-def download_image_curl(img_url, referer):
+def download_image(img_url, referer):
+    """Download image via curl"""
     result = subprocess.run([
         "curl", "-sL", "--max-time", "30",
         "-A", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
@@ -152,41 +147,54 @@ print("Loading data.json...")
 d = api_get("/recipes/data.json")
 data = json.loads(base64.b64decode(d["content"].replace("\n", "")))
 
-# Process recipes with no image OR an external URL image
+# Process recipes with no image
 to_process = []
+seen_urls = {}  # Track URL -> image already processed
+
 for r in data["recipes"]:
     img = r.get("image", "")
-    if not img and r.get("source_url"):
-        to_process.append((r["id"], r["name"], r.get("source_url", ""), None))
-    elif img and img.startswith("http") and r.get("source_url"):
-        to_process.append((r["id"], r["name"], r.get("source_url", ""), img))
+    src = r.get("source_url", "")
+    if not img and src:
+        # If we've already processed this URL, reuse the result
+        to_process.append((r["id"], r["name"], src, None))
+    elif img and img.startswith("http") and src:
+        to_process.append((r["id"], r["name"], src, img))
 
 print(f"Processing {len(to_process)} recipes...")
 success = []
 no_img = []
+url_image_cache = {}  # Cache URL -> image_data to avoid re-downloading same page
 
 for i, (rid, name, src_url, direct_url) in enumerate(to_process):
-    print(f"[{i+1}/{len(to_process)}] {name}")
+    print(f"\n[{i+1}/{len(to_process)}] {name}")
 
+    # Check cache for same-URL recipes (e.g. KodaNeg variants)
+    cached_data = url_image_cache.get(src_url)
+    
     if direct_url:
         img_url = direct_url
         referer = src_url
-        print(f"  Direct URL: {img_url[:80]}")
+    elif cached_data:
+        img_url, referer = cached_data
+        print(f"  [cached] {img_url[:80]}")
     else:
-        img_url, referer = get_image_url(rid, src_url)
+        img_url = get_image_url_for_page(src_url)
         if not img_url:
-            print(f"  No image URL found")
+            print(f"  FAILED: no image found")
             no_img.append(name)
-            time.sleep(0.5)
             continue
-
-    img_data = download_image_curl(img_url, referer)
+        referer = "https://fujixweekly.com/" if "fujixweekly" in src_url else src_url
+    
+    img_data = download_image(img_url, referer)
     if not img_data:
-        print(f"  Download failed")
+        print(f"  FAILED: download failed ({img_url[:60]})")
         no_img.append(name)
-        time.sleep(0.5)
         continue
-
+    
+    # Cache for same-URL reuse
+    if src_url not in url_image_cache:
+        url_image_cache[src_url] = (img_url, referer)
+    
     img_path = f"/images/{rid}.jpg"
     img_b64 = base64.b64encode(img_data).decode()
     try:
@@ -195,11 +203,10 @@ for i, (rid, name, src_url, direct_url) in enumerate(to_process):
             api_put(img_path, f"Add image: {name}", img_b64, ex["sha"])
         except Exception:
             api_put(img_path, f"Add image: {name}", img_b64)
-        print(f"  Committed ({len(img_data)//1024}KB)")
+        print(f"  OK: committed {len(img_data)//1024}KB")
     except Exception as e:
-        print(f"  Commit failed: {e}")
+        print(f"  FAILED: commit error: {e}")
         no_img.append(name)
-        time.sleep(1)
         continue
 
     for recipe in data["recipes"]:
@@ -208,17 +215,18 @@ for i, (rid, name, src_url, direct_url) in enumerate(to_process):
             break
 
     success.append(name)
-    time.sleep(1.0)
+    time.sleep(0.5)
 
-print(f"\nCommitting data.json ({len(success)} images added)...")
-import datetime
+print(f"\n\nCommitting data.json ({len(success)} images added)...")
 data["last_updated"] = datetime.date.today().isoformat()
 new_b64 = base64.b64encode(json.dumps(data, indent=2).encode()).decode()
 d2 = api_get("/recipes/data.json")
 api_put("/recipes/data.json", f"Add images for {len(success)} recipes", new_b64, d2["sha"])
 
-print(f"\nDone: {len(success)} succeeded, {len(no_img)} failed")
+print(f"\n=== RESULTS ===")
+print(f"Succeeded: {len(success)}")
+print(f"Failed: {len(no_img)}")
 if no_img:
-    print("No image found:")
+    print("Failed list:")
     for n in no_img:
         print(f"  - {n}")
