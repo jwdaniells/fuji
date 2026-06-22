@@ -222,6 +222,30 @@
       "date_added": "2026-06-06"
     },
     {
+      "id": "balearic-astia",
+      "name": "Balearic Astia",
+      "settings": {
+        "film_simulation": "Astia/Soft",
+        "dynamic_range": "DR200",
+        "grain_effect": "Weak, Small",
+        "color_chrome_effect": "Weak",
+        "color_chrome_fx_blue": "Weak",
+        "white_balance": "7250K, -4 Red & +4 Blue",
+        "highlight": 1,
+        "shadow": -2,
+        "color": -3,
+        "sharpness": -2,
+        "high_iso_nr": -4,
+        "clarity": -2
+      },
+      "card_rendered": false,
+      "imported": false,
+      "image": "balearic-astia.jpg",
+      "source_url": null,
+      "tags": [],
+      "date_added": "2026-06-22"
+    },
+    {
       "id": "bewaremyvelvia",
       "name": "BewareMyVelvia",
       "settings": null,
